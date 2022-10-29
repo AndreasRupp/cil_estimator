@@ -5,6 +5,10 @@ by **Andreas Rupp**.
 It contains a Python based framework for parameter estimation, which is currently under
 construction.
 
+It may be installed using
+
+    $ pip install git+https://github.com/AndreasRupp/cil_estimator.git
+
 
 # Copyright, License, and Contribution Policy
 
