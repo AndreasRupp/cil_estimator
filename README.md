@@ -9,6 +9,12 @@ It may be installed using
 
     $ pip install git+https://github.com/AndreasRupp/cil_estimator.git
 
+for the latest version, which is located in the GitHub repository. Alternatively, you can use
+
+    $ python3 -m pip install cil_estimator
+
+to obtain the latest stable version from PyPi.
+
 
 # Copyright, License, and Contribution Policy
 

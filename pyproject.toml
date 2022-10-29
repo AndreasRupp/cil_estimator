@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cil_estimator"
+version = "0.0.1"
+authors = [
+  { name="Andreas Rupp", email="info@rupp.ink" },
+]
+description = "Python package for parameter estimation of random data"
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU Lesser General Public License v2 or later (LGPLv2+)",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/AndreasRupp/cil_estimator"
+"Bug Tracker" = "https://github.com/AndreasRupp/cil_estimator/issues"
