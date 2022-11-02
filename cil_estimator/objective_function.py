@@ -41,14 +41,15 @@ def covariance_of_matrix_of_correlation_vectors( matrix_of_vectors_transposed ):
 
 class objective_function:
   def __init__(self, dataset, radii, distance_fct, subset_sizes):
-    self.dataset      = dataset
-    self.radii        = radii
-    self.distance_fct = distance_fct
-    self.subset_sizes = subset_sizes
+    self.dataset       = dataset
+    self.radii         = radii
+    self.distance_fct  = distance_fct
+    self.subset_sizes  = subset_sizes
     self.correlation_vector_matrix = matrix_of_correlation_integral_vectors_transposed(
       dataset, dataset, radii, distance_fct, subset_sizes, subset_sizes )
-    self.mean_vector  = mean_of_matrix_of_correlation_vectors(self.correlation_vector_matrix)
-    self.covar_matrix = covariance_of_matrix_of_correlation_vectors(self.correlation_vector_matrix)
+    self.mean_vector   = mean_of_matrix_of_correlation_vectors(self.correlation_vector_matrix)
+    self.covar_matrix  = covariance_of_matrix_of_correlation_vectors(self.correlation_vector_matrix)
+    self.error_printed = False
 
   def correlation_matrix(self):
     return self.correlation_vector_matrix
@@ -63,4 +64,11 @@ class objective_function:
       dataset, self.dataset, self.radii, self.distance_fct, subset_sizes, self.subset_sizes )
     mean_deviation = np.subtract( self.mean_vector ,
       mean_of_matrix_of_correlation_vectors( matrix_of_correlation_vectors ) )
-    return np.dot( mean_deviation , np.dot(self.covar_matrix, mean_deviation) )
+
+    try:
+      return np.dot( mean_deviation , np.linalg.solve(self.covar_matrix, mean_deviation) )
+    except np.linalg.LinAlgError as error:
+      if not self.error_printed:
+        self.error_printed = True
+        print("Singular covariance matrix: Using different topology")
+      return np.dot( mean_deviation, mean_deviation )
