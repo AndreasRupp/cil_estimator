@@ -40,30 +40,37 @@ def covariance_of_matrix_of_correlation_vectors( matrix_of_vectors_transposed ):
 
 
 class objective_function:
-  def __init__(self, dataset, radii, distance_fct, subset_sizes):
+  def __init__( self, dataset, radii, distance_fct, subset_sizes ):
     self.dataset       = dataset
     self.radii         = radii
     self.distance_fct  = distance_fct
-    self.subset_sizes  = subset_sizes
+    self.subset_indices= [ sum(subset_sizes[:i]) for i in range(len(subset_sizes)+1) ]
     self.correlation_vector_matrix = matrix_of_correlation_integral_vectors_transposed(
       dataset, dataset, radii, distance_fct, subset_sizes, subset_sizes )
+    deletion_pattern   = [ i * len(subset_sizes) + i for i in range(len(subset_sizes)) ]
+    self.correlation_vector_matrix = np.delete(self.correlation_vector_matrix, deletion_pattern ,1)
     self.mean_vector   = mean_of_matrix_of_correlation_vectors(self.correlation_vector_matrix)
     self.covar_matrix  = covariance_of_matrix_of_correlation_vectors(self.correlation_vector_matrix)
     self.error_printed = False
 
-  def correlation_matrix(self):
-    return self.correlation_vector_matrix
+  def choose_radii( self, n_radii = 10, min_shift = "default", max_shift = "default" ):
+    max_value = np.amax( self.mean_vector )
+    min_value = np.amin( self.mean_vector )
+    if min_shift == "default":  min_shift = (max_value - min_value) / n_radii
+    if max_shift == "default":  max_shift = (min_value - max_value) / n_radii
+    
+    rad_bdr   = np.linspace( min_value + min_shift , max_value + max_shift , num=n_radii )
+    indices   = [ np.argmax( self.mean_vector >= bdr ) for bdr in rad_bdr ]
+    self.radii                     = [ self.radii[i]                     for i in indices ]
+    self.mean_vector               = [ self.mean_vector[i]               for i in indices ]
+    self.correlation_vector_matrix = [ self.correlation_vector_matrix[i] for i in indices ]
 
-  def radii(self):
-    return self.radii
+  def evaluate( self, dataset ):
+    comparison_set = np.random.randint(len(self.subset_indices)-1)
 
-  def evaluate( self, dataset, subset_sizes = [] ):
-    if subset_sizes == []:  subset_sizes = self.subset_sizes
-
-    matrix_of_correlation_vectors = matrix_of_correlation_integral_vectors_transposed(
-      dataset, self.dataset, self.radii, self.distance_fct, subset_sizes, self.subset_sizes )
-    mean_deviation = np.subtract( self.mean_vector ,
-      mean_of_matrix_of_correlation_vectors( matrix_of_correlation_vectors ) )
+    y = correlation_integral_vector( self.dataset, dataset, self.radii, self.distance_fct,
+      self.subset_indices[comparison_set], self.subset_indices[comparison_set+1] )
+    mean_deviation = np.subtract( self.mean_vector , y )
 
     try:
       return np.dot( mean_deviation , np.linalg.solve(self.covar_matrix, mean_deviation) )
