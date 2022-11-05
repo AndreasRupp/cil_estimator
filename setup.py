@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
   name='cil_estimator',
-  version='0.0.1',
+  version='0.0.2',
   author='Andreas Rupp',
   author_email='info@rupp.ink',
   description='Python package for parameter estimation of random data',
