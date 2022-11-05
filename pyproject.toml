@@ -1,16 +1,25 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = [
+  "setuptools>=61.0",
+  "numpy>=1.19.5",
+  "matplotlib>=3.6"
+]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "cil_estimator"
-version = "0.0.1"
+version = "0.0.2"
 authors = [
   { name="Andreas Rupp", email="info@rupp.ink" },
 ]
 description = "Python package for parameter estimation of random data"
 readme = "README.md"
 requires-python = ">=3.7"
+dependencies = [
+    # TODO: update to "pin-compatible" once possible, see
+    # https://github.com/FFY00/meson-python/issues/29
+    "numpy>=1.19.5",
+]
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: GNU Lesser General Public License v2 or later (LGPLv2+)",

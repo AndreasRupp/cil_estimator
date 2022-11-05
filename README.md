@@ -2,6 +2,11 @@
 
 by **Andreas Rupp**.
 
+[![PyPI Downloads](https://img.shields.io/pypi/dm/cil_estimator.svg?label=PyPI%20downloads)](
+https://pypi.org/project/cil_estimator/)
+[![GitHub Issues](https://img.shields.io/badge/issue_tracking-github-blue.svg)](
+https://github.com/AndreasRupp/cil_estimator/issues)
+
 It contains a Python based framework for parameter estimation, which is currently under
 construction.
 
@@ -26,7 +31,8 @@ people listed at the very top of this page.
 This library is free software; you can use it, redistribute it, and/or modify it under the terms
 of the <b>GNU Lesser General Public License</b> as published by the Free Software Foundation; either
 <b>version 2.1</b> of the License, or (at your option) any later version. The full text of the GNU
-Lesser General Public version 2.1 is quoted in [License.txt](License.txt).
+Lesser General Public version 2.1 is quoted in [License.txt](
+https://github.com/AndreasRupp/cil_estimator/blob/main/License.txt).
 
 
 ## Contributions
@@ -37,7 +43,7 @@ assignments for contributions. This means that the copyright for code contributi
 is held by its respective contributors who have each agreed to release their contributed code under
 a compatible open source license (LGPL v2.1 for library code). The full text of the Developer
 Certificate of Origin version 1.1 is quoted in [DeveloperCertificateOfOrigin.txt](
-DeveloperCertificateOfOrigin.txt).
+https://github.com/AndreasRupp/cil_estimator/blob/main/DeveloperCertificateOfOrigin.txt).
 
 
 ## Contact
@@ -48,8 +54,9 @@ using [Email](mailto:info@rupp.ink).
 
 ## Links
 
-- The license can be found in [License.txt](License.txt). It contains the [GNU Lesser General Public
-License version 2.1](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html).
-- The developer certificate of origin can be found in 
-[DeveloperCertificateOfOrigin.txt](DeveloperCertificateOfOrigin.txt). It contains the [Developer 
-Certificate of Origin version 1.1](https://developercertificate.org/).
+- The license can be found in [License.txt](
+  https://github.com/AndreasRupp/cil_estimator/blob/main/License.txt). It contains the [GNU Lesser
+  General Public License version 2.1](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html).
+- The developer certificate of origin can be found in [DeveloperCertificateOfOrigin.txt](
+  https://github.com/AndreasRupp/cil_estimator/blob/main/DeveloperCertificateOfOrigin.txt). It
+  contains the [Developer Certificate of Origin version 1.1](https://developercertificate.org/).
