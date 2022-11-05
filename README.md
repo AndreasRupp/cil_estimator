@@ -6,6 +6,8 @@ by **Andreas Rupp**.
 https://badge.fury.io/py/cil_estimator)
 [![PyPi Downloads](https://img.shields.io/pypi/dm/cil_estimator.svg?label=PyPI%20downloads)](
 https://pypi.org/project/cil_estimator/)
+[![GitHub Repository](https://img.shields.io/badge/Source_code-GitHub-red.svg)](
+https://github.com/AndreasRupp/cil_estimator)
 [![GitHub Issues](https://img.shields.io/badge/Issue_tracking-GitHub-blue.svg)](
 https://github.com/AndreasRupp/cil_estimator/issues)
 
