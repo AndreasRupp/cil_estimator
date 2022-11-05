@@ -2,7 +2,7 @@
 
 by **Andreas Rupp**.
 
-[![PyPi Version](https://badge.fury.io/py/cil_estimator.svg)](
+[![PyPi Version](https://badge.fury.io/py/cil_estimator.svg?label=PyPi%20downloads)](
 https://badge.fury.io/py/cil_estimator)
 [![PyPi Downloads](https://img.shields.io/pypi/dm/cil_estimator.svg?label=PyPi%20downloads)](
 https://pypi.org/project/cil_estimator/)
