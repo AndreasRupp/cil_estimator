@@ -2,6 +2,11 @@
 
 by **Andreas Rupp**.
 
+[![PyPI Downloads](https://img.shields.io/pypi/dm/cil_estimator.svg?label=PyPI%20downloads)](
+https://pypi.org/project/cil_estimator/)
+[![GitHub Issues](https://img.shields.io/badge/issue_tracking-github-blue.svg)](
+https://github.com/AndreasRupp/cil_estimator/issues)
+
 It contains a Python based framework for parameter estimation, which is currently under
 construction.
 
