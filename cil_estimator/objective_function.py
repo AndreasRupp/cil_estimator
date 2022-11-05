@@ -37,7 +37,7 @@ def covariance_of_matrix_of_correlation_vectors( matrix_of_vectors_transposed ):
 
 
 class objective_function:
-  def __init__( self, dataset, radii, distance_fct, subset_sizes ):
+  def __init__( self, dataset, radii, distance_fct, subset_sizes, file_output = False ):
     self.dataset       = dataset
     self.radii         = radii
     self.distance_fct  = distance_fct
@@ -47,8 +47,14 @@ class objective_function:
     self.mean_vector   = mean_of_matrix_of_correlation_vectors(self.correlation_vector_matrix)
     self.covar_matrix  = covariance_of_matrix_of_correlation_vectors(self.correlation_vector_matrix)
     self.error_printed = False
+    if file_output:
+      np.savetxt('obj-func_radii.txt', self.radii, fmt='%.6f')
+      np.savetxt('obj-func_correlation_vec_mat.txt', self.correlation_vector_matrix, fmt='%.6f')
+      np.savetxt('obj-func_mean_vector.txt', self.mean_vector, fmt='%.6f')
+      np.savetxt('obj-func_covar_matrix.txt', self.covar_matrix, fmt='%.6f')
 
-  def choose_radii( self, n_radii = 10, min_value_shift = "default", max_value_shift = "default" ):
+  def choose_radii( self, n_radii = 10, min_value_shift = "default", max_value_shift = "default",
+    check_spectral_conditon = True, file_output = False ):
     max_value = np.amax( self.mean_vector )
     min_value = np.amin( self.mean_vector )
     if min_value_shift == "default":  min_value_shift = (max_value - min_value) / n_radii
@@ -62,11 +68,16 @@ class objective_function:
     self.mean_vector   = mean_of_matrix_of_correlation_vectors(self.correlation_vector_matrix)
     self.covar_matrix  = covariance_of_matrix_of_correlation_vectors(self.correlation_vector_matrix)
     spectral_condition = np.linalg.cond(self.covar_matrix)
+    if file_output:
+      np.savetxt('choose-radii_radii.txt', self.radii, fmt='%.6f')
+      np.savetxt('choose-radii_correlation_vec_mat.txt', self.correlation_vector_matrix, fmt='%.6f')
+      np.savetxt('choose-radii_mean_vector.txt', self.mean_vector, fmt='%.6f')
+      np.savetxt('choose-radii_covar_matrix.txt', self.covar_matrix, fmt='%.6f')
     if spectral_condition > 1e3:
       print("WARNING: The spectral condition of the covariance matrix is", spectral_condition)
 
   def evaluate( self, dataset ):
-    comparison_set = np.random.randint(len(self.subset_indices)-1)
+    comparison_set = np.random.randint( len(self.subset_indices)-1 )
 
     y = correlation_integral_vector( self.dataset, dataset, self.radii, self.distance_fct,
       self.subset_indices[comparison_set], self.subset_indices[comparison_set+1] )
