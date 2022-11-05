@@ -16,9 +16,9 @@ def correlation_integral_vector( dataset_a, dataset_b, radii, distance_fct,
 
 def correlation_integral_vector_matrix( dataset, radii, distance_fct, subset_indices ):
   if not all(subset_indices[i] <= subset_indices[i+1] for i in range(len(subset_indices)-1)):
-    raise OrderError("Subset indices are out of order.")
+    raise Exception("Subset indices are out of order.")
   if subset_indices[0] != 0 or subset_indices[-1] != len(dataset):
-    raise SizeError("Not all elements of the dataset are distributed into subsets.")
+    raise Exception("Not all elements of the dataset are distributed into subsets.")
 
   matrix = []
   for i in range(len(subset_indices)-1):
@@ -54,7 +54,7 @@ class objective_function:
     if min_value_shift == "default":  min_value_shift = (max_value - min_value) / n_radii
     if max_value_shift == "default":  max_value_shift = (min_value - max_value) / n_radii
     
-    rad_bdr   = np.linspace( min_value+min_value_shift , max_value+max_alue_shift , num=n_radii )
+    rad_bdr   = np.linspace( min_value+min_value_shift , max_value+max_value_shift , num=n_radii )
     indices   = [ np.argmax( self.mean_vector >= bdr ) for bdr in rad_bdr ]
     self.radii         = [ self.radii[i] for i in indices ]
     self.correlation_vector_matrix = correlation_integral_vector_matrix(
