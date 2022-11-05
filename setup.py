@@ -17,5 +17,9 @@ setuptools.setup(
   },
   license='LGPL-2.1',
   packages=['cil_estimator'],
-  install_requires=['requests'],
+  install_requires=[
+    'requests',
+    'numpy>=1.19.5',
+    'matplotlib>=3.6'
+  ],
 )
