@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def correlation_integral_vector( dataset_a, dataset_b, radii, distance_fct, 
   start_a = 0, end_a = -1, start_b = 0, end_b = -1 ):
   if end_a == -1:  end_a = len(dataset_a)
@@ -13,21 +14,17 @@ def correlation_integral_vector( dataset_a, dataset_b, radii, distance_fct,
   return [ elem / ((end_a - start_a) * (end_b - start_b)) for elem in n_close_elem ]
 
 
-def matrix_of_correlation_integral_vectors_transposed( dataset_a, dataset_b, radii, distance_fct, 
-  subset_sizes_a = [], subset_sizes_b = [] ):
-  if subset_sizes_a == []:  subset_sizes_a = [len(dataset_a)]
-  if subset_sizes_b == []:  subset_sizes_b = [len(dataset_b)]
-  if sum(subset_sizes_a) != len(dataset_a) or sum(subset_sizes_b) != len(dataset_b):
-    raise SizeError("Sizes of subsets do not fit datasets!")
+def correlation_integral_vector_matrix( dataset, radii, distance_fct, subset_indices ):
+  if not all(subset_indices[i] <= subset_indices[i+1] for i in range(len(subset_indices)-1)):
+    raise OrderError("Subset indices are out of order.")
+  if subset_indices[0] != 0 or subset_indices[-1] != len(dataset):
+    raise SizeError("Not all elements of the dataset are distributed into subsets.")
 
-  matrix    = [ [0.] * len(radii) for x in subset_sizes_a for y in subset_sizes_b ]
-  indices_a = [ sum(subset_sizes_a[:i]) for i in range(len(subset_sizes_a)+1) ]
-  indices_b = [ sum(subset_sizes_b[:i]) for i in range(len(subset_sizes_b)+1) ]
-
-  for i in range(len(subset_sizes_a)):
-    for j in range(len(subset_sizes_b)):
-      matrix[i * len(subset_sizes_b) + j] = correlation_integral_vector( dataset_a, dataset_b,
-        radii, distance_fct, indices_a[i], indices_a[i+1], indices_b[j], indices_b[j+1] )
+  matrix = []
+  for i in range(len(subset_indices)-1):
+    for j in range(i):
+      matrix.append( correlation_integral_vector( dataset, dataset, radii, distance_fct,
+        subset_indices[i], subset_indices[i+1], subset_indices[j], subset_indices[j+1] ) )
   return np.transpose(matrix)
 
 
@@ -45,25 +42,28 @@ class objective_function:
     self.radii         = radii
     self.distance_fct  = distance_fct
     self.subset_indices= [ sum(subset_sizes[:i]) for i in range(len(subset_sizes)+1) ]
-    self.correlation_vector_matrix = matrix_of_correlation_integral_vectors_transposed(
-      dataset, dataset, radii, distance_fct, subset_sizes, subset_sizes )
-    deletion_pattern   = [ i * len(subset_sizes) + i for i in range(len(subset_sizes)) ]
-    self.correlation_vector_matrix = np.delete(self.correlation_vector_matrix, deletion_pattern ,1)
+    self.correlation_vector_matrix = correlation_integral_vector_matrix(
+      dataset, radii, distance_fct, self.subset_indices )
     self.mean_vector   = mean_of_matrix_of_correlation_vectors(self.correlation_vector_matrix)
     self.covar_matrix  = covariance_of_matrix_of_correlation_vectors(self.correlation_vector_matrix)
     self.error_printed = False
 
-  def choose_radii( self, n_radii = 10, min_shift = "default", max_shift = "default" ):
+  def choose_radii( self, n_radii = 10, min_value_shift = "default", max_value_shift = "default" ):
     max_value = np.amax( self.mean_vector )
     min_value = np.amin( self.mean_vector )
-    if min_shift == "default":  min_shift = (max_value - min_value) / n_radii
-    if max_shift == "default":  max_shift = (min_value - max_value) / n_radii
+    if min_value_shift == "default":  min_value_shift = (max_value - min_value) / n_radii
+    if max_value_shift == "default":  max_value_shift = (min_value - max_value) / n_radii
     
-    rad_bdr   = np.linspace( min_value + min_shift , max_value + max_shift , num=n_radii )
+    rad_bdr   = np.linspace( min_value+min_value_shift , max_value+max_alue_shift , num=n_radii )
     indices   = [ np.argmax( self.mean_vector >= bdr ) for bdr in rad_bdr ]
-    self.radii                     = [ self.radii[i]                     for i in indices ]
-    self.mean_vector               = [ self.mean_vector[i]               for i in indices ]
-    self.correlation_vector_matrix = [ self.correlation_vector_matrix[i] for i in indices ]
+    self.radii         = [ self.radii[i] for i in indices ]
+    self.correlation_vector_matrix = correlation_integral_vector_matrix(
+      self.dataset, self.radii, self.distance_fct, self.subset_indices )
+    self.mean_vector   = mean_of_matrix_of_correlation_vectors(self.correlation_vector_matrix)
+    self.covar_matrix  = covariance_of_matrix_of_correlation_vectors(self.correlation_vector_matrix)
+    spectral_condition = np.linalg.cond(self.covar_matrix)
+    if spectral_condition > 1e3:
+      print("WARNING: The spectral condition of the covariance matrix is", spectral_condition)
 
   def evaluate( self, dataset ):
     comparison_set = np.random.randint(len(self.subset_indices)-1)
@@ -77,5 +77,5 @@ class objective_function:
     except np.linalg.LinAlgError as error:
       if not self.error_printed:
         self.error_printed = True
-        print("Singular covariance matrix: Using different topology")
+        print("WARNING: Covariance matrix is singular. CIL_estimator uses different topology.")
       return np.dot( mean_deviation, mean_deviation )
