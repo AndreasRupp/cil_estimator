@@ -2,9 +2,9 @@
 
 by **Andreas Rupp**.
 
-[![PyPi Version](https://badge.fury.io/py/cil_estimator.svg?label=PyPi%20downloads)](
+[![PyPI Version](https://badge.fury.io/py/cil_estimator.svg)](
 https://badge.fury.io/py/cil_estimator)
-[![PyPi Downloads](https://img.shields.io/pypi/dm/cil_estimator.svg?label=PyPi%20downloads)](
+[![PyPI Downloads](https://img.shields.io/pypi/dm/cil_estimator.svg?label=PyPI%20downloads)](
 https://pypi.org/project/cil_estimator/)
 [![GitHub Repository](https://img.shields.io/badge/Source_code-GitHub-red.svg)](
 https://github.com/AndreasRupp/cil_estimator)
@@ -22,7 +22,7 @@ for the latest version, which is located in the GitHub repository. Alternatively
 
     $ python3 -m pip install cil_estimator
 
-to obtain the latest stable version from PyPi.
+to obtain the latest stable version from [PyPI](https://pypi.org/).
 
 
 # Copyright, License, and Contribution Policy
