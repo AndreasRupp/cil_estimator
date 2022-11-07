@@ -76,12 +76,8 @@ class objective_function:
     if spectral_condition > 1e3:
       print("WARNING: The spectral condition of the covariance matrix is", spectral_condition)
 
-  def evaluate( self, dataset ):
-    comparison_set = np.random.randint( len(self.subset_indices)-1 )
-
-    y = correlation_integral_vector( self.dataset, dataset, self.radii, self.distance_fct,
-      self.subset_indices[comparison_set], self.subset_indices[comparison_set+1] )
-    mean_deviation = np.subtract( self.mean_vector , y )
+  def eval_f( self, vector ):
+    mean_deviation = np.subtract( self.mean_vector , vector )
 
     try:
       return np.dot( mean_deviation , np.linalg.solve(self.covar_matrix, mean_deviation) )
@@ -90,3 +86,9 @@ class objective_function:
         self.error_printed = True
         print("WARNING: Covariance matrix is singular. CIL_estimator uses different topology.")
       return np.dot( mean_deviation, mean_deviation )
+
+  def evaluate( self, dataset ):
+    comparison_set = np.random.randint( len(self.subset_indices)-1 )
+    y = correlation_integral_vector( self.dataset, dataset, self.radii, self.distance_fct,
+      self.subset_indices[comparison_set], self.subset_indices[comparison_set+1] )
+    return self.eval_f( y )
