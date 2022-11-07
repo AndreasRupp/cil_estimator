@@ -50,8 +50,8 @@ class objective_function:
     if file_output:
       np.savetxt('obj-func_radii.txt', self.radii, fmt='%.6f')
       np.savetxt('obj-func_correlation_vec_mat.txt', self.correlation_vector_matrix, fmt='%.6f')
-      np.savetxt('obj-func_mean_vector.txt', self.mean_vector, fmt='%.6f')
-      np.savetxt('obj-func_covar_matrix.txt', self.covar_matrix, fmt='%.6f')
+      np.savetxt('obj-func_mean-vector.txt', self.mean_vector, fmt='%.6f')
+      np.savetxt('obj-func_covar-matrix.txt', self.covar_matrix, fmt='%.6f')
 
   def choose_radii( self, n_radii = 10, min_value_shift = "default", max_value_shift = "default",
     check_spectral_conditon = True, file_output = False ):
@@ -71,12 +71,12 @@ class objective_function:
     if file_output:
       np.savetxt('choose-radii_radii.txt', self.radii, fmt='%.6f')
       np.savetxt('choose-radii_correlation_vec_mat.txt', self.correlation_vector_matrix, fmt='%.6f')
-      np.savetxt('choose-radii_mean_vector.txt', self.mean_vector, fmt='%.6f')
-      np.savetxt('choose-radii_covar_matrix.txt', self.covar_matrix, fmt='%.6f')
+      np.savetxt('choose-radii_mean-vector.txt', self.mean_vector, fmt='%.6f')
+      np.savetxt('choose-radii_covar-matrix.txt', self.covar_matrix, fmt='%.6f')
     if spectral_condition > 1e3:
       print("WARNING: The spectral condition of the covariance matrix is", spectral_condition)
 
-  def eval_f( self, vector ):
+  def evaluate_from_empirical_cumulative_distribution_functions( self, vector ):
     mean_deviation = np.subtract( self.mean_vector , vector )
 
     try:
@@ -91,4 +91,4 @@ class objective_function:
     comparison_set = np.random.randint( len(self.subset_indices)-1 )
     y = correlation_integral_vector( self.dataset, dataset, self.radii, self.distance_fct,
       self.subset_indices[comparison_set], self.subset_indices[comparison_set+1] )
-    return self.eval_f( y )
+    return self.evaluate_from_empirical_cumulative_distribution_functions( y )

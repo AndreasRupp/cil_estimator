@@ -24,8 +24,8 @@ def plot_chi2_test( objective_function, plotter="default", n_bins=[], plot_optio
   if plotter      == "default":  plotter = plt
   if plot_options == "default":  plot_options = "r-"
 
-  n_logl    = [ objective_function.eval_f(vector) \
-                for vector in np.transpose(objective_function.correlation_vector_matrix) ]
+  n_logl = [ objective_function.evaluate_from_empirical_cumulative_distribution_functions(vector) \
+             for vector in np.transpose(objective_function.correlation_vector_matrix) ]
   if n_bins == []:
     khi, bins = np.histogram( n_logl )
   else:
