@@ -2,9 +2,13 @@
 
 by **Andreas Rupp**.
 
+[![PyPI Version](https://badge.fury.io/py/cil_estimator.svg)](
+https://badge.fury.io/py/cil_estimator)
 [![PyPI Downloads](https://img.shields.io/pypi/dm/cil_estimator.svg?label=PyPI%20downloads)](
 https://pypi.org/project/cil_estimator/)
-[![GitHub Issues](https://img.shields.io/badge/issue_tracking-github-blue.svg)](
+[![GitHub Repository](https://img.shields.io/badge/Source_code-GitHub-red.svg)](
+https://github.com/AndreasRupp/cil_estimator)
+[![GitHub Issues](https://img.shields.io/badge/Issue_tracking-GitHub-blue.svg)](
 https://github.com/AndreasRupp/cil_estimator/issues)
 
 It contains a Python based framework for parameter estimation, which is currently under
@@ -18,7 +22,7 @@ for the latest version, which is located in the GitHub repository. Alternatively
 
     $ python3 -m pip install cil_estimator
 
-to obtain the latest stable version from PyPi.
+to obtain the latest stable version from [PyPI](https://pypi.org/).
 
 
 # Copyright, License, and Contribution Policy
