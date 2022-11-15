@@ -19,6 +19,7 @@ dependencies = [
     # TODO: update to "pin-compatible" once possible, see
     # https://github.com/FFY00/meson-python/issues/29
     "numpy>=1.19.5",
+    "matplotlib>=3.6"
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
