@@ -1,17 +1,9 @@
-# `cil_estimator` is now `ecdf_estimator`!
+# Welcome to ecdf_estimator
 
-This software package is deprecated! Thus, we do not recommend to use the version of `cil_estimator`
-that is provided here. Nonetheless, `cil_estimator` is further developed and can be obtained from
-[GitHub](https://github.com/AndreasRupp/ecdf_estimator) and [PyPI](
-https://pypi.org/project/ecdf-estimator/) under its new name `ecdf_estimator`.
-
-
-# Welcome to cil_estimator
-
-[![PyPI Version](https://badge.fury.io/py/cil_estimator.svg)](
-https://badge.fury.io/py/cil_estimator)
-[![PyPI Downloads](https://img.shields.io/pypi/dm/cil_estimator.svg?label=PyPI%20downloads)](
-https://pypi.org/project/cil_estimator/)
+[![PyPI Version](https://badge.fury.io/py/ecdf_estimator.svg)](
+https://badge.fury.io/py/ecdf_estimator)
+[![PyPI Downloads](https://img.shields.io/pypi/dm/ecdf_estimator.svg?label=PyPI%20downloads)](
+https://pypi.org/project/ecdf_estimator/)
 [![GitHub Repository](https://img.shields.io/badge/Source_code-GitHub-red.svg)](
 https://github.com/AndreasRupp/ecdf_estimator)
 [![GitHub Issues](https://img.shields.io/badge/Issue_tracking-GitHub-blue.svg)](
