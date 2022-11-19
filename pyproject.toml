@@ -7,7 +7,7 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "cil_estimator"
+name = "ecdf_estimator"
 version = "0.1.0"
 authors = [
   { name="Andreas Rupp", email="info@rupp.ink" },
