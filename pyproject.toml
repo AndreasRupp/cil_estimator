@@ -8,7 +8,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cil_estimator"
-version = "0.0.3"
+version = "0.0.4"
 authors = [
   { name="Andreas Rupp", email="info@rupp.ink" },
 ]
@@ -16,17 +16,15 @@ description = "Python package for parameter estimation of random data"
 readme = "README.md"
 requires-python = ">=3.8"
 dependencies = [
-    # TODO: update to "pin-compatible" once possible, see
-    # https://github.com/FFY00/meson-python/issues/29
-    "numpy>=1.19.5",
-    "matplotlib>=3.6"
+  "numpy>=1.19.5",
+  "matplotlib>=3.6"
 ]
 classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: GNU Lesser General Public License v2 or later (LGPLv2+)",
-    "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: GNU Lesser General Public License v2 or later (LGPLv2+)",
+  "Operating System :: OS Independent",
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/AndreasRupp/cil_estimator"
-"Bug Tracker" = "https://github.com/AndreasRupp/cil_estimator/issues"
+"Homepage" = "https://github.com/AndreasRupp/ecdf_estimator"
+"Bug Tracker" = "https://github.com/AndreasRupp/ecdf_estimator/issues"

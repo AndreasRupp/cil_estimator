@@ -53,7 +53,6 @@ class objective_function:
       np.savetxt('obj-func_mean-vector.txt', self.mean_vector, fmt='%.6f')
       np.savetxt('obj-func_covar-matrix.txt', self.covar_matrix, fmt='%.6f')
 
-  # add flag: uniform in x o uniform in y
   def choose_bins( self, n_bins = 10, min_value_shift = "default", max_value_shift = "default",
     choose_type = "uniform_y", check_spectral_conditon = True, file_output = False ):
     if choose_type == "uniform_y":
@@ -101,6 +100,6 @@ class objective_function:
 
   def evaluate( self, dataset ):
     comparison_set = np.random.randint( len(self.subset_indices)-1 )
-    y = empirical_cumulative_distribution_vector( self.dataset, dataset, self.bins, self.distance_fct,
+    y = empirical_cumulative_distribution_vector(self.dataset,dataset,self.bins,self.distance_fct,
       self.subset_indices[comparison_set], self.subset_indices[comparison_set+1] )
     return self.evaluate_from_empirical_cumulative_distribution_functions( y )

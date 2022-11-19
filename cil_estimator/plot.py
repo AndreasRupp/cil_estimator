@@ -2,18 +2,18 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import chi2
 
-# plot ecdf
-def plot_correlation_vectors( objective_function, plotter="default", plot_options="default" ):
+
+def plot_ecdf_vectors( objective_function, plotter="default", plot_options="default" ):
   if plotter      == "default":  plotter = plt
   if plot_options == "default":  plot_options = "b."
   
-  for vector in list(zip(*(objective_function.ecdf_list))):                 # np.transpose!?
+  for vector in np.transpose(objective_function.ecdf_list):
     plotter.plot(objective_function.bins, vector, plot_options)
   return plotter
 
 
 def plot_mean_vector( objective_function, plotter="default", plot_options="default" ):
-  if plotter      == "default":  plotter = plt
+  if plotter      == "defa-ult":  plotter = plt
   if plot_options == "default":  plot_options = "g."
   
   plotter.plot(objective_function.bins, objective_function.mean_vector, plot_options)
