@@ -69,7 +69,7 @@ class objective_function:
       if min_value_shift == "default":  min_value_shift = (max_index - min_index) / n_bins
       if max_value_shift == "default":  max_value_shift = (min_index - max_index) / n_bins
       indices   = np.linspace( min_index+min_value_shift , max_index+max_value_shift , num=n_bins )
-      self.bins = [ self.bins[i] for i in indices ]
+      self.bins = [ self.bins[int(i)] for i in indices ]
     else:
       print("WARNING: Invalid choose_type flag for choose_bins. Nothing is done in this function.")
       return

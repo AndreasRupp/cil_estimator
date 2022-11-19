@@ -65,7 +65,7 @@ using [Email](mailto:info@rupp.ink).
 ## Links
 
 - The license can be found in [License.txt](
-  https://github.com/AndreasRupp/edf_estimator/blob/main/License.txt). It contains the [GNU Lesser
+  https://github.com/AndreasRupp/ecdf_estimator/blob/main/License.txt). It contains the [GNU Lesser
   General Public License version 2.1](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html).
 - The developer certificate of origin can be found in [DeveloperCertificateOfOrigin.txt](
   https://github.com/AndreasRupp/ecdf_estimator/blob/main/DeveloperCertificateOfOrigin.txt). It
