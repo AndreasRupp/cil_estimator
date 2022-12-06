@@ -62,14 +62,20 @@ class objective_function:
       if max_value_shift == "default":  max_value_shift = (min_value - max_value) / n_bins
       rad_bdr   = np.linspace( min_value+min_value_shift , max_value+max_value_shift , num=n_bins )
       indices   = [ np.argmax( self.mean_vector >= bdr ) for bdr in rad_bdr ]
-      self.bins = [ self.bins[i] for i in indices ]
+      unique_indices = np.unique(indices)
+      if len(indices) != len(unique_indices):
+        print("WARNING: Some bins were duplicate. These duplicates are removed from the list.")
+      self.bins = [ self.bins[i] for i in unique_indices ]
     elif choose_type == "uniform_x":
       max_index = np.amax( np.argmin(self.mean_vector) )
       min_index = np.amin( np.argmax(self.mean_vector) )
       if min_value_shift == "default":  min_value_shift = (max_index - min_index) / n_bins
       if max_value_shift == "default":  max_value_shift = (min_index - max_index) / n_bins
       indices   = np.linspace( min_index+min_value_shift , max_index+max_value_shift , num=n_bins )
-      self.bins = [ self.bins[int(i)] for i in indices ]
+      unique_indices = np.unique(indices)
+      if len(indices) != len(unique_indices):
+        print("WARNING: Some bins were duplicate. These duplicates are removed from the list.")
+      self.bins = [ self.bins[int(i)] for i in unique_indices ]
     else:
       print("WARNING: Invalid choose_type flag for choose_bins. Nothing is done in this function.")
       return
