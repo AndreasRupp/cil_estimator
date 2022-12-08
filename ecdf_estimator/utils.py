@@ -14,11 +14,12 @@ def estimate_radii_values(
   ):
   n1 = len(dataset1)
   n2 = len(dataset2)
-  distance_data = np.ndarray((n1, n2))
+  distance_data = []
   for i in range(n1):
     for j in range(n2):
-      distance_data[i, j] = distance_function(dataset1[i], dataset2[j])
-  distance_data = distance_data.flatten()
+      distance_data.append( distance_function(dataset1[i], dataset2[j]) )
+  if isinstance(distance_data[0], list):
+    distance_data = [item for sublist in distance_data for item in sublist]
   distance_data = np.sort(distance_data)
   data_offset = round(len(distance_data) * rel_offset)
   r_max = distance_data[-(data_offset + 1)]

@@ -22,6 +22,20 @@ def create_distance_matrix( dataset_a, dataset_b, distance_fct,
   return distance_list
 
 
+def create_distribution_list( dataset_a, dataset_b, distribution_fct, 
+  start_a = 0, end_a = -1, start_b = 0, end_b = -1 ):
+  if end_a == -1:  end_a = len(dataset_a)
+  if end_b == -1:  end_b = len(dataset_b)
+
+  distribution_list = []
+
+  for i in range(end_a - start_a):
+    for j in range(end_b - start_b):
+      distribution_list.append( distribution_fct(dataset_a[start_a+i], dataset_b[start_b+j]) )
+
+  return [item for sublist in distribution_list for item in sublist]
+
+
 def empirical_cumulative_distribution_vector_list( dataset, bins, distance_fct, subset_indices ):
   if not all(subset_indices[i] <= subset_indices[i+1] for i in range(len(subset_indices)-1)):
     raise Exception("Subset indices are out of order.")
@@ -33,6 +47,22 @@ def empirical_cumulative_distribution_vector_list( dataset, bins, distance_fct, 
     for j in range(i):
       distance_list = np.ndarray.flatten( create_distance_matrix(dataset, dataset, distance_fct, 
         subset_indices[i], subset_indices[i+1], subset_indices[j], subset_indices[j+1]) )
+      matrix.append( empirical_cumulative_distribution_vector(distance_list, bins) )
+  return np.transpose(matrix)
+
+
+def empirical_cumulative_distribution_vector_list_distribution(
+  dataset, bins, distribution_fct, subset_indices ):
+  if not all(subset_indices[i] <= subset_indices[i+1] for i in range(len(subset_indices)-1)):
+    raise Exception("Subset indices are out of order.")
+  if subset_indices[0] != 0 or subset_indices[-1] != len(dataset):
+    raise Exception("Not all elements of the dataset are distributed into subsets.")
+
+  matrix = []
+  for i in range(len(subset_indices)-1):
+    for j in range(i):
+      distance_list = create_distribution_list(dataset, dataset, distribution_fct, 
+        subset_indices[i], subset_indices[i+1], subset_indices[j], subset_indices[j+1])
       matrix.append( empirical_cumulative_distribution_vector(distance_list, bins) )
   return np.transpose(matrix)
 
@@ -86,7 +116,7 @@ def _choose_bins(obj_fun, n_bins = 10, min_value_shift = "default", max_value_sh
     print("WARNING: Invalid choose_type flag for choose_bins. Nothing is done in this function.")
     return
 
-  if obj_fun.type == "standard":
+  if obj_fun.type == "standard" or obj_fun.type == "distribution":
     obj_fun.ecdf_list = empirical_cumulative_distribution_vector_list(
       obj_fun.dataset, obj_fun.bins, obj_fun.distance_fct, obj_fun.subset_indices )
   elif obj_fun.type == "bootstrap":
@@ -196,3 +226,72 @@ class bootstrap_objective_function:
       self.distance_fct) )
     y = empirical_cumulative_distribution_vector(distance_list,self.bins)
     return self.evaluate_from_empirical_cumulative_distribution_functions( y )
+
+
+class distribution_objective_function:
+  def __init__( self, dataset, bins, distribution_fct, subset_sizes, file_output = False ):
+    self.type           = "distribution"
+    self.dataset        = dataset
+    self.bins           = bins
+    self.distribution_fct = distribution_fct
+    self.subset_indices = [ sum(subset_sizes[:i]) for i in range(len(subset_sizes)+1) ]
+    self.ecdf_list      = empirical_cumulative_distribution_vector_list_distribution(
+                            dataset, bins, distribution_fct, self.subset_indices )
+    self.mean_vector    = mean_of_ecdf_vectors(self.ecdf_list)
+    self.covar_matrix   = covariance_of_ecdf_vectors(self.ecdf_list)
+    self.error_printed  = False
+    if file_output:
+      np.savetxt('obj-func_bins.txt', self.bins, fmt='%.6f')
+      np.savetxt('obj-func_ecdf-list.txt', self.ecdf_list, fmt='%.6f')
+      np.savetxt('obj-func_mean-vector.txt', self.mean_vector, fmt='%.6f')
+      np.savetxt('obj-func_covar-matrix.txt', self.covar_matrix, fmt='%.6f')
+
+  def choose_bins( self, n_bins = 10, min_value_shift = "default", max_value_shift = "default",
+    choose_type = "uniform_y", check_spectral_conditon = True, file_output = False ):
+    _choose_bins(self, n_bins, min_value_shift, max_value_shift, choose_type,
+      check_spectral_conditon, file_output)
+
+  def evaluate_from_empirical_cumulative_distribution_functions( self, vector ):
+    return _evaluate_from_empirical_cumulative_distribution_functions( self, vector )
+
+  def evaluate( self, dataset ):
+    comparison_set = np.random.randint( len(self.subset_indices)-1 )
+    distance_list = np.ndarray.flatten( create_distribution_list(self.dataset, dataset, 
+      self.distribution_fct, self.subset_indices[comparison_set],
+      self.subset_indices[comparison_set+1]) )
+    y = empirical_cumulative_distribution_vector(distance_list, self.bins)
+    return self.evaluate_from_empirical_cumulative_distribution_functions( y )
+
+
+class multiple_objectives:
+  def __init__( self, obj_fun_list, check_spectral_conditon = True ):
+    self.obj_fun_list = obj_fun_list
+
+    n_rows = 0
+    n_columns = -1
+    for obj_fun in obj_fun_list:
+      n_rows += obj_fun.ecdf_list.shape[0]
+      if n_columns == -1:  n_columns = obj_fun.ecdf_list.shape[1]
+      elif n_columns != obj_fun.ecdf_list.shape[1]:
+        print("ERROR: All objective functions should contain the same number of ecdf vectors.")
+
+    self.ecdf_list = np.zeros( (n_rows, n_columns) )
+    index = 0
+    for obj_fun in obj_fun_list:
+      self.ecdf_list[index:index+obj_fun.ecdf_list.shape[0],:] = obj_fun.ecdf_list
+      index = index+obj_fun.ecdf_list.shape[0]
+
+    self.mean_vector    = mean_of_ecdf_vectors(self.ecdf_list)
+    self.covar_matrix   = covariance_of_ecdf_vectors(self.ecdf_list)    
+
+    if check_spectral_conditon:
+      spectral_condition = np.linalg.cond(self.covar_matrix)
+      if spectral_condition > 1e3:
+        print("WARNING: The spectral condition of the covariance matrix is", spectral_condition)
+
+  def evaluate_from_empirical_cumulative_distribution_functions( self, vector ):
+    return _evaluate_from_empirical_cumulative_distribution_functions( self, vector )
+
+  def evaluate( self, dataset ):
+    matrix = [ obj_fun.evaluate(dataset) for obj_fun in self.obj_fun_list ]
+    return evaluate_from_empirical_cumulative_distribution_functions( np.ndarray.flatten(matrix) )

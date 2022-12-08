@@ -6,17 +6,23 @@ from scipy.stats import chi2
 def plot_ecdf_vectors( objective_function, plotter="default", plot_options="default" ):
   if plotter      == "default":  plotter = plt
   if plot_options == "default":  plot_options = "b."
+
+  if hasattr(objective_function, 'bins'):  bins = objective_function.bins
+  else:                                    bins = range(1, objective_function.ecdf_list.shape[0]+1)
   
   for vector in np.transpose(objective_function.ecdf_list):
-    plotter.plot(objective_function.bins, vector, plot_options)
+    plotter.plot(bins, vector, plot_options)
   return plotter
 
 
 def plot_mean_vector( objective_function, plotter="default", plot_options="default" ):
   if plotter      == "defa-ult":  plotter = plt
   if plot_options == "default":  plot_options = "g."
+
+  if hasattr(objective_function, 'bins'):  bins = objective_function.bins
+  else:                                    bins = range(1, objective_function.ecdf_list.shape[0]+1)
   
-  plotter.plot(objective_function.bins, objective_function.mean_vector, plot_options)
+  plotter.plot(bins, objective_function.mean_vector, plot_options)
   return plotter
 
 
