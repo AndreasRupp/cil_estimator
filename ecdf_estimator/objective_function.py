@@ -21,6 +21,14 @@ def create_distance_matrix( dataset_a, dataset_b, distance_fct,
 
   return distance_list
 
+  # distance_tensor = [ [0] * (end_b - start_b) ] * (end_a - start_a) 
+
+  # for i in range(end_a - start_a):
+  #   for j in range(end_b - start_b):
+  #     distance_tensor[i][j] = distance_fct(dataset_a[start_a+i], dataset_b[start_b+j]) 
+
+  # return distance_tensor
+
 
 def create_distribution_list( dataset_a, dataset_b, distribution_fct, 
   start_a = 0, end_a = -1, start_b = 0, end_b = -1 ):
@@ -33,7 +41,7 @@ def create_distribution_list( dataset_a, dataset_b, distribution_fct,
     for j in range(end_b - start_b):
       distribution_list.append( distribution_fct(dataset_a[start_a+i], dataset_b[start_b+j]) )
 
-  return [item for sublist in distribution_list for item in sublist]
+  return distribution_list
 
 
 def empirical_cumulative_distribution_vector_list( dataset, bins, distance_fct, subset_indices ):
@@ -45,8 +53,9 @@ def empirical_cumulative_distribution_vector_list( dataset, bins, distance_fct, 
   matrix = []
   for i in range(len(subset_indices)-1):
     for j in range(i):
-      distance_list = np.ndarray.flatten( create_distance_matrix(dataset, dataset, distance_fct, 
-        subset_indices[i], subset_indices[i+1], subset_indices[j], subset_indices[j+1]) )
+      distance_list = create_distance_matrix(dataset, dataset, distance_fct, 
+        subset_indices[i], subset_indices[i+1], subset_indices[j], subset_indices[j+1])
+      distance_list = [item for sublist in distance_list for item in sublist]
       matrix.append( empirical_cumulative_distribution_vector(distance_list, bins) )
   return np.transpose(matrix)
 
@@ -63,6 +72,7 @@ def empirical_cumulative_distribution_vector_list_distribution(
     for j in range(i):
       distance_list = create_distribution_list(dataset, dataset, distribution_fct, 
         subset_indices[i], subset_indices[i+1], subset_indices[j], subset_indices[j+1])
+      distance_list = [item for sublist in distance_list for item in sublist]
       matrix.append( empirical_cumulative_distribution_vector(distance_list, bins) )
   return np.transpose(matrix)
 
@@ -116,8 +126,11 @@ def _choose_bins(obj_fun, n_bins = 10, min_value_shift = "default", max_value_sh
     print("WARNING: Invalid choose_type flag for choose_bins. Nothing is done in this function.")
     return
 
-  if obj_fun.type == "standard" or obj_fun.type == "distribution":
+  if obj_fun.type == "standard":
     obj_fun.ecdf_list = empirical_cumulative_distribution_vector_list(
+      obj_fun.dataset, obj_fun.bins, obj_fun.distance_fct, obj_fun.subset_indices )
+  elif obj_fun.type == "distribution":
+    obj_fun.ecdf_list = empirical_cumulative_distribution_vector_list_distribution(
       obj_fun.dataset, obj_fun.bins, obj_fun.distance_fct, obj_fun.subset_indices )
   elif obj_fun.type == "bootstrap":
     obj_fun.ecdf_list = empirical_cumulative_distribution_vector_list_bootstrap(
@@ -181,9 +194,10 @@ class objective_function:
 
   def evaluate( self, dataset ):
     comparison_set = np.random.randint( len(self.subset_indices)-1 )
-    distance_list = np.ndarray.flatten( create_distance_matrix(self.dataset, dataset, 
+    distance_list = create_distance_matrix(self.dataset, dataset, 
       self.distance_fct, self.subset_indices[comparison_set],
-      self.subset_indices[comparison_set+1]) )
+      self.subset_indices[comparison_set+1])
+    distance_list = [item for sublist in distance_list for item in sublist]
     y = empirical_cumulative_distribution_vector(distance_list,self.bins)
     return self.evaluate_from_empirical_cumulative_distribution_functions( y )
 
@@ -233,7 +247,7 @@ class distribution_objective_function:
     self.type           = "distribution"
     self.dataset        = dataset
     self.bins           = bins
-    self.distribution_fct = distribution_fct
+    self.distance_fct = distribution_fct
     self.subset_indices = [ sum(subset_sizes[:i]) for i in range(len(subset_sizes)+1) ]
     self.ecdf_list      = empirical_cumulative_distribution_vector_list_distribution(
                             dataset, bins, distribution_fct, self.subset_indices )
@@ -256,9 +270,10 @@ class distribution_objective_function:
 
   def evaluate( self, dataset ):
     comparison_set = np.random.randint( len(self.subset_indices)-1 )
-    distance_list = np.ndarray.flatten( create_distribution_list(self.dataset, dataset, 
-      self.distribution_fct, self.subset_indices[comparison_set],
-      self.subset_indices[comparison_set+1]) )
+    distance_list = create_distribution_list(self.dataset, dataset, 
+      self.distance_fct, self.subset_indices[comparison_set],
+      self.subset_indices[comparison_set+1])
+    distance_list = [item for sublist in distance_list for item in sublist]
     y = empirical_cumulative_distribution_vector(distance_list, self.bins)
     return self.evaluate_from_empirical_cumulative_distribution_functions( y )
 
