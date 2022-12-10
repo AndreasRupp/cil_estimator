@@ -15,11 +15,7 @@ class objective_function:
     self.mean_vector    = ecdf_aux.mean_of_ecdf_vectors(self.ecdf_list)
     self.covar_matrix   = ecdf_aux.covariance_of_ecdf_vectors(self.ecdf_list)
     self.error_printed  = False
-    if file_output:
-      np.savetxt('obj-func_bins.txt', self.bins, fmt='%.6f')
-      np.savetxt('obj-func_ecdf-list.txt', self.ecdf_list, fmt='%.6f')
-      np.savetxt('obj-func_mean-vector.txt', self.mean_vector, fmt='%.6f')
-      np.savetxt('obj-func_covar-matrix.txt', self.covar_matrix, fmt='%.6f')
+    if file_output:       ecdf_aux.file_output( self )
 
   def choose_bins( self, n_bins = 10, min_value_shift = "default", max_value_shift = "default",
     choose_type = "uniform_y", check_spectral_conditon = True, file_output = False ):
@@ -29,19 +25,22 @@ class objective_function:
   def evaluate_from_empirical_cumulative_distribution_functions( self, vector ):
     return ecdf_aux.evaluate_from_empirical_cumulative_distribution_functions( self, vector )
 
-  def evaluate( self, dataset ):
+  def evaluate_ecdf(self, dataset):
     comparison_set = np.random.randint( len(self.subset_indices)-1 )
-    distance_list = ecdf_aux.create_distance_matrix(self.dataset, dataset, 
+    distance_list = ecdf_aux.create_distance_matrix(self.dataset, dataset,
       self.distance_fct, self.subset_indices[comparison_set],
       self.subset_indices[comparison_set+1])
     while isinstance(distance_list[0], list):
       distance_list = [item for sublist in distance_list for item in sublist]
-    y = ecdf_aux.empirical_cumulative_distribution_vector(distance_list, self.bins)
-    return self.evaluate_from_empirical_cumulative_distribution_functions( y )
+    return ecdf_aux.empirical_cumulative_distribution_vector(distance_list, self.bins)
+
+  def evaluate( self, dataset ):
+    return self.evaluate_from_empirical_cumulative_distribution_functions(
+      self.evaluate_ecdf(dataset) )
 
 # --------------------------------------------------------------------------------------------------
 class bootstrap_objective_function:
-  def __init__( self, dataset_a, dataset_b, bins, distance_fct, n_samples = 1000, 
+  def __init__( self, dataset_a, dataset_b, bins, distance_fct, n_samples = 1000,
     file_output = False ):
     self.type           = "bootstrap"
     self.dataset_a      = dataset_a
@@ -64,16 +63,17 @@ class bootstrap_objective_function:
   def evaluate_from_empirical_cumulative_distribution_functions( self, vector ):
     return ecdf_aux.evaluate_from_empirical_cumulative_distribution_functions( self, vector )
 
-  def evaluate( self, dataset ):
-    if np.random.randint( 2 ) == 0:
-      comparison_set = self.dataset_a
-    else:
-      comparison_set = self.dataset_b
+  def evaluate_ecdf( self, dataset ):
+    if np.random.randint( 2 ) == 0:  comparison_set = self.dataset_a
+    else:                            comparison_set = self.dataset_b
 
     distance_list = ecdf_aux.create_distance_matrix(comparison_set, dataset, self.distance_fct)
     distance_list = [item for sublist in distance_list for item in sublist]
-    y = ecdf_aux.empirical_cumulative_distribution_vector(distance_list,self.bins)
-    return self.evaluate_from_empirical_cumulative_distribution_functions( y )
+    return ecdf_aux.empirical_cumulative_distribution_vector(distance_list, self.bins)
+
+  def evaluate( self, dataset ):
+    return self.evaluate_from_empirical_cumulative_distribution_functions(
+      self.evaluate_ecdf(dataset) )
 
 # --------------------------------------------------------------------------------------------------
 class multiple_objectives:
@@ -95,7 +95,8 @@ class multiple_objectives:
       index = index+obj_fun.ecdf_list.shape[0]
 
     self.mean_vector    = ecdf_aux.mean_of_ecdf_vectors(self.ecdf_list)
-    self.covar_matrix   = ecdf_aux.covariance_of_ecdf_vectors(self.ecdf_list)    
+    self.covar_matrix   = ecdf_aux.covariance_of_ecdf_vectors(self.ecdf_list)
+    self.error_printed  = False
 
     if check_spectral_conditon:
       spectral_condition = np.linalg.cond(self.covar_matrix)
@@ -106,6 +107,7 @@ class multiple_objectives:
     return ecdf_aux.evaluate_from_empirical_cumulative_distribution_functions( self, vector )
 
   def evaluate( self, dataset ):
-    matrix = [ obj_fun.evaluate(dataset) for obj_fun in self.obj_fun_list ]
-    matrix = np.ndarray.flatten(matrix)
-    return ecdf_aux.evaluate_from_empirical_cumulative_distribution_functions( matrix )
+    vector = [ obj_fun.evaluate_ecdf(dataset) for obj_fun in self.obj_fun_list ]
+    while isinstance(vector[0], list):
+      vector = [item for sublist in vector for item in sublist]
+    return self.evaluate_from_empirical_cumulative_distribution_functions( vector )
