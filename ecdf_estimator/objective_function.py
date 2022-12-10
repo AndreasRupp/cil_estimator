@@ -2,9 +2,12 @@ import numpy as np
 
 
 def empirical_cumulative_distribution_vector( distance_list, bins ):
-  n_close_elem = [0.] * len(bins)            # Use of np.zeros( len(bins) ) slows down code!
-  for distance in distance_list:
-    n_close_elem = [ ( n_close_elem[i] + (distance < bins[i]) ) for i in range(len(bins)) ]
+  n_close_elem = [0.] * len(bins)                                                                   # Use of np.zeros( len(bins) ) slows down code!
+  # for distance in distance_list:                                                                  # This code is perfectly fine and the intuitve
+  #   n_close_elem = [ ( n_close_elem[i] + (distance < bins[i]) ) for i in range(len(bins)) ]       # solution. However, it is slow.
+  for index in range(len(bins)):
+    n_close_elem[index] = np.sum( [distance < bins[index] for distance in distance_list] )
+
   return [ elem / len(distance_list) for elem in n_close_elem ]
 
 
@@ -13,35 +16,16 @@ def create_distance_matrix( dataset_a, dataset_b, distance_fct,
   if end_a == -1:  end_a = len(dataset_a)
   if end_b == -1:  end_b = len(dataset_b)
 
-  distance_list = np.zeros( (end_a-start_a ,end_b-start_b) )
-
-  for i in range(end_a - start_a):
-    for j in range(end_b - start_b):
-      distance_list[i,j] = distance_fct(dataset_a[start_a+i], dataset_b[start_b+j])
-
-  return distance_list
-
-  # distance_tensor = [ [0] * (end_b - start_b) ] * (end_a - start_a) 
-
+  # init_val        = distance_fct(dataset_a[start_a], dataset_b[start_b])                          # Perfectly fine code that does the job, but uses
+  # distance_tensor = [[init_val for _ in range(end_b - start_b) ] for _ in range(end_a - start_a)] # 1 more eval than necessary.
   # for i in range(end_a - start_a):
   #   for j in range(end_b - start_b):
-  #     distance_tensor[i][j] = distance_fct(dataset_a[start_a+i], dataset_b[start_b+j]) 
+  #     distance_tensor[i][j] = distance_fct(dataset_a[start_a+i], dataset_b[start_b+j])
 
-  # return distance_tensor
+  distance_tensor = [ [ distance_fct(dataset_a[start_a+i], dataset_b[start_b+j]) \
+    for j in range(end_b - start_b) ] for i in range(end_a - start_a) ] 
 
-
-def create_distribution_list( dataset_a, dataset_b, distribution_fct, 
-  start_a = 0, end_a = -1, start_b = 0, end_b = -1 ):
-  if end_a == -1:  end_a = len(dataset_a)
-  if end_b == -1:  end_b = len(dataset_b)
-
-  distribution_list = []
-
-  for i in range(end_a - start_a):
-    for j in range(end_b - start_b):
-      distribution_list.append( distribution_fct(dataset_a[start_a+i], dataset_b[start_b+j]) )
-
-  return distribution_list
+  return distance_tensor
 
 
 def empirical_cumulative_distribution_vector_list( dataset, bins, distance_fct, subset_indices ):
@@ -55,25 +39,10 @@ def empirical_cumulative_distribution_vector_list( dataset, bins, distance_fct, 
     for j in range(i):
       distance_list = create_distance_matrix(dataset, dataset, distance_fct, 
         subset_indices[i], subset_indices[i+1], subset_indices[j], subset_indices[j+1])
-      distance_list = [item for sublist in distance_list for item in sublist]
+      while isinstance(distance_list[0], list):
+        distance_list = [item for sublist in distance_list for item in sublist]
       matrix.append( empirical_cumulative_distribution_vector(distance_list, bins) )
-  return np.transpose(matrix)
 
-
-def empirical_cumulative_distribution_vector_list_distribution(
-  dataset, bins, distribution_fct, subset_indices ):
-  if not all(subset_indices[i] <= subset_indices[i+1] for i in range(len(subset_indices)-1)):
-    raise Exception("Subset indices are out of order.")
-  if subset_indices[0] != 0 or subset_indices[-1] != len(dataset):
-    raise Exception("Not all elements of the dataset are distributed into subsets.")
-
-  matrix = []
-  for i in range(len(subset_indices)-1):
-    for j in range(i):
-      distance_list = create_distribution_list(dataset, dataset, distribution_fct, 
-        subset_indices[i], subset_indices[i+1], subset_indices[j], subset_indices[j+1])
-      distance_list = [item for sublist in distance_list for item in sublist]
-      matrix.append( empirical_cumulative_distribution_vector(distance_list, bins) )
   return np.transpose(matrix)
 
 
@@ -95,7 +64,6 @@ def mean_of_ecdf_vectors( ecdf_vector_list ):
 
 def covariance_of_ecdf_vectors( ecdf_vector_list ):
   return np.cov( ecdf_vector_list )
-
 
 
 
@@ -126,11 +94,8 @@ def _choose_bins(obj_fun, n_bins = 10, min_value_shift = "default", max_value_sh
     print("WARNING: Invalid choose_type flag for choose_bins. Nothing is done in this function.")
     return
 
-  if obj_fun.type == "standard":
+  if obj_fun.type == "standard" or obj_fun.type == "distribution":
     obj_fun.ecdf_list = empirical_cumulative_distribution_vector_list(
-      obj_fun.dataset, obj_fun.bins, obj_fun.distance_fct, obj_fun.subset_indices )
-  elif obj_fun.type == "distribution":
-    obj_fun.ecdf_list = empirical_cumulative_distribution_vector_list_distribution(
       obj_fun.dataset, obj_fun.bins, obj_fun.distance_fct, obj_fun.subset_indices )
   elif obj_fun.type == "bootstrap":
     obj_fun.ecdf_list = empirical_cumulative_distribution_vector_list_bootstrap(
@@ -161,8 +126,6 @@ def _evaluate_from_empirical_cumulative_distribution_functions( obj_fun, vector 
       obj_fun.error_printed = True
       print("WARNING: Covariance matrix is singular. CIL_estimator uses different topology.")
     return np.dot( mean_deviation , mean_deviation )
-
-
 
 
 
@@ -197,8 +160,9 @@ class objective_function:
     distance_list = create_distance_matrix(self.dataset, dataset, 
       self.distance_fct, self.subset_indices[comparison_set],
       self.subset_indices[comparison_set+1])
-    distance_list = [item for sublist in distance_list for item in sublist]
-    y = empirical_cumulative_distribution_vector(distance_list,self.bins)
+    while isinstance(distance_list[0], list):
+      distance_list = [item for sublist in distance_list for item in sublist]
+    y = empirical_cumulative_distribution_vector(distance_list, self.bins)
     return self.evaluate_from_empirical_cumulative_distribution_functions( y )
 
 
@@ -242,51 +206,15 @@ class bootstrap_objective_function:
     return self.evaluate_from_empirical_cumulative_distribution_functions( y )
 
 
-class distribution_objective_function:
-  def __init__( self, dataset, bins, distribution_fct, subset_sizes, file_output = False ):
-    self.type           = "distribution"
-    self.dataset        = dataset
-    self.bins           = bins
-    self.distance_fct = distribution_fct
-    self.subset_indices = [ sum(subset_sizes[:i]) for i in range(len(subset_sizes)+1) ]
-    self.ecdf_list      = empirical_cumulative_distribution_vector_list_distribution(
-                            dataset, bins, distribution_fct, self.subset_indices )
-    self.mean_vector    = mean_of_ecdf_vectors(self.ecdf_list)
-    self.covar_matrix   = covariance_of_ecdf_vectors(self.ecdf_list)
-    self.error_printed  = False
-    if file_output:
-      np.savetxt('obj-func_bins.txt', self.bins, fmt='%.6f')
-      np.savetxt('obj-func_ecdf-list.txt', self.ecdf_list, fmt='%.6f')
-      np.savetxt('obj-func_mean-vector.txt', self.mean_vector, fmt='%.6f')
-      np.savetxt('obj-func_covar-matrix.txt', self.covar_matrix, fmt='%.6f')
-
-  def choose_bins( self, n_bins = 10, min_value_shift = "default", max_value_shift = "default",
-    choose_type = "uniform_y", check_spectral_conditon = True, file_output = False ):
-    _choose_bins(self, n_bins, min_value_shift, max_value_shift, choose_type,
-      check_spectral_conditon, file_output)
-
-  def evaluate_from_empirical_cumulative_distribution_functions( self, vector ):
-    return _evaluate_from_empirical_cumulative_distribution_functions( self, vector )
-
-  def evaluate( self, dataset ):
-    comparison_set = np.random.randint( len(self.subset_indices)-1 )
-    distance_list = create_distribution_list(self.dataset, dataset, 
-      self.distance_fct, self.subset_indices[comparison_set],
-      self.subset_indices[comparison_set+1])
-    distance_list = [item for sublist in distance_list for item in sublist]
-    y = empirical_cumulative_distribution_vector(distance_list, self.bins)
-    return self.evaluate_from_empirical_cumulative_distribution_functions( y )
-
-
 class multiple_objectives:
   def __init__( self, obj_fun_list, check_spectral_conditon = True ):
     self.obj_fun_list = obj_fun_list
 
-    n_rows = 0
-    n_columns = -1
+    n_rows, n_columns = 0, -1
     for obj_fun in obj_fun_list:
       n_rows += obj_fun.ecdf_list.shape[0]
-      if n_columns == -1:  n_columns = obj_fun.ecdf_list.shape[1]
+      if n_columns == -1:
+        n_columns = obj_fun.ecdf_list.shape[1]
       elif n_columns != obj_fun.ecdf_list.shape[1]:
         print("ERROR: All objective functions should contain the same number of ecdf vectors.")
 
