@@ -2,8 +2,6 @@ import numpy as np
 
 
 def empirical_cumulative_distribution_vector( distance_list, bins ):
-  # return [ np.sum( [distance < basket for distance in distance_list] ) / len(distance_list) \
-  #   for basket in bins ]
   return [ sum( distance < basket for distance in distance_list ) / len(distance_list) \
     for basket in bins ]
 
@@ -53,6 +51,10 @@ def mean_of_ecdf_vectors( ecdf_vector_list ):
 
 def covariance_of_ecdf_vectors( ecdf_vector_list ):
   return np.cov( ecdf_vector_list )
+
+
+def evaluate( estimator , dataset ):
+  return estimator.evaluate( dataset )
 
 
 def evaluate_from_empirical_cumulative_distribution_functions( estimator, vector ):
