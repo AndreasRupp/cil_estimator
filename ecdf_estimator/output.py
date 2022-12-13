@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import chi2
+import ecdf_estimator.utils as ecdf_aux
 
 
 def plot_ecdf_vectors( estimator, plotter="default", plot_options="default" ):
@@ -30,7 +31,7 @@ def plot_chi2_test( estimator, plotter="default", n_bins=[], plot_options="defau
   if plotter      == "default":  plotter = plt
   if plot_options == "default":  plot_options = "r-"
 
-  n_logl = [ estimator.evaluate_from_empirical_cumulative_distribution_functions(vector) \
+  n_logl = [ ecdf_aux.evaluate_from_empirical_cumulative_distribution_functions(estimator, vector) \
              for vector in np.transpose(estimator.ecdf_list) ]
 
   if n_bins == []:  khi, bins = np.histogram( n_logl )

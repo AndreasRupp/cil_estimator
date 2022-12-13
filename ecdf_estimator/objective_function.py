@@ -23,7 +23,7 @@ class standard:
     return ecdf_aux.empirical_cumulative_distribution_vector(distance_list, self.bins)
 
   def evaluate( self, dataset ):
-    return self.evaluate_from_empirical_cumulative_distribution_functions(
+    return ecdf_aux.evaluate_from_empirical_cumulative_distribution_functions( self,
       self.evaluate_ecdf(dataset) )
 
 
@@ -39,7 +39,6 @@ class bootstrap:
     self.mean_vector    = ecdf_aux.mean_of_ecdf_vectors(self.ecdf_list)
     self.covar_matrix   = ecdf_aux.covariance_of_ecdf_vectors(self.ecdf_list)
     self.error_printed  = False
-    if file_output:       ecdf_aux.file_output( self )
 
   def evaluate_ecdf( self, dataset ):
     if np.random.randint( 2 ) == 0:  comparison_set = self.dataset_a
@@ -50,7 +49,7 @@ class bootstrap:
     return ecdf_aux.empirical_cumulative_distribution_vector(distance_list, self.bins)
 
   def evaluate( self, dataset ):
-    return self.evaluate_from_empirical_cumulative_distribution_functions(
+    return ecdf_aux.evaluate_from_empirical_cumulative_distribution_functions( self,
       self.evaluate_ecdf(dataset) )
 
 
@@ -85,4 +84,4 @@ class multiple:
     vector = [ obj_fun.evaluate_ecdf(dataset) for obj_fun in self.obj_fun_list ]
     while isinstance(vector[0], list):
       vector = [item for sublist in vector for item in sublist]
-    return self.evaluate_from_empirical_cumulative_distribution_functions( vector )
+    return ecdf_aux.evaluate_from_empirical_cumulative_distribution_functions( self, vector )
