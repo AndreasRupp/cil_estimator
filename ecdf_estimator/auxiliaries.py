@@ -36,7 +36,7 @@ def empirical_cumulative_distribution_vector_list( dataset, bins, distance_fct, 
 
 
 def empirical_cumulative_distribution_vector_list_bootstrap(
-  dataset_a, dataset_b, bins, distance_fct, n_samples):
+  dataset_a, dataset_b, bins, distance_fct, n_samples ):
   distance_matrix = np.array( create_distance_matrix(dataset_a, dataset_b, distance_fct) )
   matrix = []
   for _ in range(n_samples):
@@ -55,12 +55,12 @@ def covariance_of_ecdf_vectors( ecdf_vector_list ):
   return np.cov( ecdf_vector_list )
 
 
-def evaluate_from_empirical_cumulative_distribution_functions( obj_fun, vector ):
-  mean_deviation = np.subtract( obj_fun.mean_vector , vector )
+def evaluate_from_empirical_cumulative_distribution_functions( estimator, vector ):
+  mean_deviation = np.subtract( estimator.mean_vector , vector )
   try:
-    return np.dot( mean_deviation , np.linalg.solve(obj_fun.covar_matrix, mean_deviation) )
+    return np.dot( mean_deviation , np.linalg.solve(estimator.covar_matrix, mean_deviation) )
   except np.linalg.LinAlgError as error:
-    if not obj_fun.error_printed:
-      obj_fun.error_printed = True
+    if not estimator.error_printed:
+      estimator.error_printed = True
       print("WARNING: Covariance matrix is singular. CIL_estimator uses different topology.")
     return np.dot( mean_deviation , mean_deviation )

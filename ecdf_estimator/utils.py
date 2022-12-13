@@ -1,26 +1,13 @@
 import numpy as np
 
 
-# Use this function to estimate good bin values BEFORE creating objective function.
-
-
-# estimates minimal and maximal radii values based on a small segment of pattern data
-def estimate_radii_values(
-    dataset1,  # first subset of the data (first two parameters can be tuned to mimic the behaviour of full dataset)
-    dataset2,  # second subset of the data
-    distance_function,  # function, used to compute distances between patterns
-    eps=0.05,  # small constant, used to perturb the estimates
-    rel_offset=0.05  # percentage of distances from the 'tails', which will be skipped (from one side)
-  ):
-  n1 = len(dataset1)
-  n2 = len(dataset2)
-  distance_data = []
-  for i in range(n1):
-    for j in range(n2):
-      distance_data.append( distance_function(dataset1[i], dataset2[j]) )
+def estimate_radii_values( dataset1, dataset_b, distance_function, eps = 0.05, rel_offset = 0.05 ):
+  distance_data = [ distance_function(dataset_a[i], dataset_b[j]) for j in range(len(dataset_b)) \
+                    for i in range(len(dataset_a)) ]
   if isinstance(distance_data[0], list):
     distance_data = [item for sublist in distance_data for item in sublist]
   distance_data = np.sort(distance_data)
+
   data_offset = round(len(distance_data) * rel_offset)
   r_max = distance_data[-(data_offset + 1)]
   r_min = distance_data[data_offset]
@@ -30,11 +17,13 @@ def estimate_radii_values(
   lower_bound = r_min - eps * radii_interval
   if lower_bound < 0:
     lower_bound = r_min
+
   return lower_bound, upper_bound, distance_data
 
 
-def choose_bins(distance_data, possible_bins, n_bins = 10, min_value_shift = "default", max_value_shift = "default",
-  choose_type = "uniform_y", check_spectral_conditon = True, file_output = False ):
+def choose_bins(distance_data, possible_bins, n_bins = 10, min_value_shift = "default",
+  max_value_shift = "default", choose_type = "uniform_y", check_spectral_conditon = True,
+  file_output = False ):
   ecdf_curve = empirical_cumulative_distribution_vector(distance_data, possible_bins)
   if choose_type == "uniform_y":
     max_value = np.amax( ecdf_curve )
