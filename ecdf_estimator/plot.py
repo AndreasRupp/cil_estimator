@@ -42,3 +42,10 @@ def plot_chi2_test( objective_function, plotter="default", n_bins=[], plot_optio
   x  = np.linspace(chi2.ppf(0.01, df), chi2.ppf(0.99,df), 100)
   plotter.plot(x, chi2.pdf(x, df),plot_options, lw=5, alpha=0.6, label='chi2 pdf')
   return plotter
+
+
+def file_output( obj_fun ):
+  np.savetxt(obj_fun.type + '_bins.txt',         obj_fun.bins, fmt='%.6f')
+  np.savetxt(obj_fun.type + '_ecdf-list.txt',    obj_fun.ecdf_list, fmt='%.6f')
+  np.savetxt(obj_fun.type + '_mean-vector.txt',  obj_fun.mean_vector, fmt='%.6f')
+  np.savetxt(obj_fun.type + '_covar-matrix.txt', obj_fun.covar_matrix, fmt='%.6f')
