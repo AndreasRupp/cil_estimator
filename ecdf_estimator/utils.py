@@ -1,51 +1,68 @@
 import numpy as np
 
 
-def estimate_radii_values( dataset1, dataset_b, distance_function, eps = 0.05, rel_offset = 0.05 ):
-  distance_data = [ distance_function(dataset_a[i], dataset_b[j]) for j in range(len(dataset_b)) \
-                    for i in range(len(dataset_a)) ]
-  if isinstance(distance_data[0], list):
-    distance_data = [item for sublist in distance_data for item in sublist]
-  distance_data = np.sort(distance_data)
-
-  data_offset = round(len(distance_data) * rel_offset)
-  r_max = distance_data[-(data_offset + 1)]
-  r_min = distance_data[data_offset]
-
-  radii_interval = (r_max - r_min)
-  upper_bound = r_max + eps * radii_interval
-  lower_bound = r_min - eps * radii_interval
-  if lower_bound < 0:
-    lower_bound = r_min
-
-  return lower_bound, upper_bound, distance_data
+def empirical_cumulative_distribution_vector( distance_list, bins ):
+  return [ sum( distance < basket for distance in distance_list ) / len(distance_list) \
+    for basket in bins ]
 
 
-def choose_bins(distance_data, possible_bins, n_bins = 10, min_value_shift = "default",
-  max_value_shift = "default", choose_type = "uniform_y", check_spectral_conditon = True,
-  file_output = False ):
-  ecdf_curve = empirical_cumulative_distribution_vector(distance_data, possible_bins)
-  if choose_type == "uniform_y":
-    max_value = np.amax( ecdf_curve )
-    min_value = np.amin( ecdf_curve )
-    if min_value_shift == "default":  min_value_shift = (max_value - min_value) / n_bins
-    if max_value_shift == "default":  max_value_shift = (min_value - max_value) / n_bins
-    rad_bdr   = np.linspace( min_value+min_value_shift , max_value+max_value_shift , num=n_bins )
-    indices   = [ np.argmax( ecdf_curve >= bdr ) for bdr in rad_bdr ]
-    unique_indices = np.unique(indices)
-    if len(indices) != len(unique_indices):
-      print("WARNING: Some bins were duplicate. These duplicates are removed from the list.")
-    return [ possible_bins[i] for i in unique_indices ]
-  elif choose_type == "uniform_x":
-    max_index = np.amax( np.argmin(ecdf_curve) )
-    min_index = np.amin( np.argmax(ecdf_curve) )
-    if min_value_shift == "default":  min_value_shift = (max_index - min_index) / n_bins
-    if max_value_shift == "default":  max_value_shift = (min_index - max_index) / n_bins
-    indices   = np.linspace( min_index+min_value_shift , max_index+max_value_shift , num=n_bins )
-    unique_indices = np.unique(indices)
-    if len(indices) != len(unique_indices):
-      print("WARNING: Some bins were duplicate. These duplicates are removed from the list.")
-    return [ possible_bins[int(i)] for i in unique_indices ]
-  else:
-    print("WARNING: Invalid choose_type flag for choose_bins. Nothing is done in this function.")
-    return
+def create_distance_matrix( dataset_a, dataset_b, distance_fct, 
+  start_a = 0, end_a = -1, start_b = 0, end_b = -1 ):
+  if end_a == -1:  end_a = len(dataset_a)
+  if end_b == -1:  end_b = len(dataset_b)
+
+  return [ [ distance_fct(dataset_a[i], dataset_b[j]) for j in range(start_b, end_b) ] \
+             for i in range(start_a, end_a) ]
+
+
+def empirical_cumulative_distribution_vector_list( dataset, bins, distance_fct, subset_indices ):
+  if not all(subset_indices[i] <= subset_indices[i+1] for i in range(len(subset_indices)-1)):
+    raise Exception("Subset indices are out of order.")
+  if subset_indices[0] != 0 or subset_indices[-1] != len(dataset):
+    raise Exception("Not all elements of the dataset are distributed into subsets.")
+
+  matrix = []
+  for i in range(len(subset_indices)-1):
+    for j in range(i):
+      distance_list = create_distance_matrix(dataset, dataset, distance_fct, 
+        subset_indices[i], subset_indices[i+1], subset_indices[j], subset_indices[j+1])
+      while isinstance(distance_list[0], list):
+        distance_list = [item for sublist in distance_list for item in sublist]
+      matrix.append( empirical_cumulative_distribution_vector(distance_list, bins) )
+
+  return np.transpose(matrix)
+
+
+def empirical_cumulative_distribution_vector_list_bootstrap(
+  dataset_a, dataset_b, bins, distance_fct, n_samples ):
+  distance_matrix = np.array( create_distance_matrix(dataset_a, dataset_b, distance_fct) )
+  matrix = []
+  for _ in range(n_samples):
+    permute_a = np.random.randint(distance_matrix.shape[0], size=distance_matrix.shape[0])
+    permute_b = np.random.randint(distance_matrix.shape[1], size=distance_matrix.shape[1])
+    distance_list = np.ndarray.flatten( distance_matrix[permute_a,permute_b] )
+    matrix.append( empirical_cumulative_distribution_vector(distance_list, bins) )
+  return np.transpose(matrix)
+
+
+def mean_of_ecdf_vectors( ecdf_vector_list ):
+  return [ np.mean(vector) for vector in ecdf_vector_list ]
+
+
+def covariance_of_ecdf_vectors( ecdf_vector_list ):
+  return np.cov( ecdf_vector_list )
+
+
+def evaluate( estimator , dataset ):
+  return estimator.evaluate( dataset )
+
+
+def evaluate_from_empirical_cumulative_distribution_functions( estimator, vector ):
+  mean_deviation = np.subtract( estimator.mean_vector , vector )
+  try:
+    return np.dot( mean_deviation , np.linalg.solve(estimator.covar_matrix, mean_deviation) )
+  except np.linalg.LinAlgError as error:
+    if not estimator.error_printed:
+      estimator.error_printed = True
+      print("WARNING: Covariance matrix is singular. CIL_estimator uses different topology.")
+    return np.dot( mean_deviation , mean_deviation )
