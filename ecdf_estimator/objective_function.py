@@ -1,8 +1,7 @@
 import numpy as np
-import ecdf_estimator.auxiliaries as ecdf_aux
+import ecdf_estimator.utils as ecdf_aux
 
 
-# --------------------------------------------------------------------------------------------------
 class standard:
   def __init__( self, dataset, bins, distance_fct, subset_sizes ):
     self.dataset        = dataset
@@ -27,7 +26,7 @@ class standard:
     return self.evaluate_from_empirical_cumulative_distribution_functions(
       self.evaluate_ecdf(dataset) )
 
-# --------------------------------------------------------------------------------------------------
+
 class bootstrap:
   def __init__( self, dataset_a, dataset_b, bins, distance_fct, n_samples = 1000 ):
     self.dataset_a      = dataset_a
@@ -54,7 +53,7 @@ class bootstrap:
     return self.evaluate_from_empirical_cumulative_distribution_functions(
       self.evaluate_ecdf(dataset) )
 
-# --------------------------------------------------------------------------------------------------
+
 class multiple:
   def __init__( self, obj_fun_list, check_spectral_conditon = True ):
     self.obj_fun_list = obj_fun_list
