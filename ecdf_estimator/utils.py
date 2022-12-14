@@ -3,13 +3,13 @@ import numpy as np
 
 def empirical_cumulative_distribution_vector( distance_list, bins ):
   return [ sum( distance < basket for distance in distance_list ) / len(distance_list) \
-    for basket in bins ]
+           for basket in bins ]
 
 
 def create_distance_matrix( dataset_a, dataset_b, distance_fct, 
-  start_a = 0, end_a = -1, start_b = 0, end_b = -1 ):
-  if end_a == -1:  end_a = len(dataset_a)
-  if end_b == -1:  end_b = len(dataset_b)
+  start_a = 0, end_a = None, start_b = 0, end_b = None ):
+  if end_a is None:  end_a = len(dataset_a)
+  if end_b is None:  end_b = len(dataset_b)
 
   return [ [ distance_fct(dataset_a[i], dataset_b[j]) for j in range(start_b, end_b) ] \
              for i in range(start_a, end_a) ]
@@ -53,7 +53,7 @@ def covariance_of_ecdf_vectors( ecdf_vector_list ):
   return np.cov( ecdf_vector_list )
 
 
-def evaluate( estimator , dataset ):
+def evaluate( estimator, dataset ):
   return estimator.evaluate( dataset )
 
 

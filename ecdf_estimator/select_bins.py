@@ -20,13 +20,13 @@ def estimate_radii_values( dataset_a, dataset_b, distance_fct, eps = 0.05, rel_o
   return lower_bound, upper_bound, distance_data
 
 
-def choose_bins(distance_data, possible_bins, n_bins = 10, min_value_shift = "default",
-  max_value_shift = "default", choose_type = "uniform_y" ):
+def choose_bins(distance_data, possible_bins, n_bins = 10, choose_type = "uniform_y",
+  min_value_shift = None, max_value_shift = None ):
   ecdf_curve = ecdf_aux.empirical_cumulative_distribution_vector(distance_data, possible_bins)
   if choose_type == "uniform_y":
     max_value, min_value = np.amax( ecdf_curve ), np.amin( ecdf_curve )
-    if min_value_shift == "default":  min_value_shift = (max_value - min_value) / n_bins
-    if max_value_shift == "default":  max_value_shift = (min_value - max_value) / n_bins
+    if min_value_shift is None:  min_value_shift = (max_value - min_value) / n_bins
+    if max_value_shift is None:  max_value_shift = (min_value - max_value) / n_bins
     rad_bdr   = np.linspace( min_value+min_value_shift , max_value+max_value_shift , num=n_bins )
     indices   = [ np.argmax( ecdf_curve >= bdr ) for bdr in rad_bdr ]
     unique_indices = np.unique(indices)
@@ -35,8 +35,8 @@ def choose_bins(distance_data, possible_bins, n_bins = 10, min_value_shift = "de
     return [ possible_bins[i] for i in unique_indices ]
   elif choose_type == "uniform_x":
     max_index, min_index = np.amax( np.argmin(ecdf_curve) ), np.amin( np.argmax(ecdf_curve) )
-    if min_value_shift == "default":  min_value_shift = (max_index - min_index) / n_bins
-    if max_value_shift == "default":  max_value_shift = (min_index - max_index) / n_bins
+    if min_value_shift is None:  min_value_shift = (max_index - min_index) / n_bins
+    if max_value_shift is None:  max_value_shift = (min_index - max_index) / n_bins
     indices   = np.linspace( min_index+min_value_shift , max_index+max_value_shift , num=n_bins )
     unique_indices = np.unique(indices)
     if len(indices) != len(unique_indices):

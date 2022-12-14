@@ -4,9 +4,9 @@ from scipy.stats import chi2
 import ecdf_estimator.utils as ecdf_aux
 
 
-def plot_ecdf_vectors( estimator, plotter="default", plot_options="default" ):
-  if plotter      == "default":  plotter = plt
-  if plot_options == "default":  plot_options = "b."
+def plot_ecdf_vectors( estimator, plotter = None, plot_options = None ):
+  if plotter      is None:  plotter = plt
+  if plot_options is None:  plot_options = "b."
 
   if hasattr(estimator, 'bins'):  bins = estimator.bins
   else:                           bins = range(1, len(estimator.ecdf_list)+1)
@@ -16,9 +16,9 @@ def plot_ecdf_vectors( estimator, plotter="default", plot_options="default" ):
   return plotter
 
 
-def plot_mean_vector( estimator, plotter="default", plot_options="default" ):
-  if plotter      == "defa-ult":  plotter = plt
-  if plot_options == "default":  plot_options = "g."
+def plot_mean_vector( estimator, plotter = None, plot_options = None ):
+  if plotter      is None:  plotter = plt
+  if plot_options is None:  plot_options = "g."
 
   if hasattr(estimator, 'bins'):  bins = estimator.bins
   else:                           bins = range(1, len(estimator.ecdf_list)+1)
@@ -27,15 +27,15 @@ def plot_mean_vector( estimator, plotter="default", plot_options="default" ):
   return plotter
 
 
-def plot_chi2_test( estimator, plotter="default", n_bins=[], plot_options="default" ):
-  if plotter      == "default":  plotter = plt
-  if plot_options == "default":  plot_options = "r-"
+def plot_chi2_test( estimator, plotter = None, n_bins = None, plot_options = None ):
+  if plotter      is None:  plotter = plt
+  if plot_options is None:  plot_options = "r-"
 
   n_logl = [ ecdf_aux.evaluate_from_empirical_cumulative_distribution_functions(estimator, vector) \
              for vector in np.transpose(estimator.ecdf_list) ]
 
-  if n_bins == []:  khi, bins = np.histogram( n_logl )
-  else:             khi, bins = np.histogram( n_logl, n_bins )
+  if n_bins is None:  khi, bins = np.histogram( n_logl )
+  else:               khi, bins = np.histogram( n_logl, n_bins )
 
   khi_n = [ x / sum(khi) / (bins[1] - bins[0]) for x in khi ]
   plotter.hist(bins[:-1], bins, weights=khi_n)
@@ -45,7 +45,7 @@ def plot_chi2_test( estimator, plotter="default", n_bins=[], plot_options="defau
   return plotter
 
 
-def save_data( estimator, name="ecdf_estimator" ):
+def save_data( estimator, name = "ecdf_estimator" ):
   np.savetxt(name + '_bins.txt',         estimator.bins, fmt='%.6f')
   np.savetxt(name + '_ecdf-list.txt',    estimator.ecdf_list, fmt='%.6f')
   np.savetxt(name + '_mean-vector.txt',  estimator.mean_vector, fmt='%.6f')
