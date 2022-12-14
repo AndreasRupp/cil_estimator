@@ -2,8 +2,8 @@ import numpy as np
 
 
 def empirical_cumulative_distribution_vector( distance_list, bins ):
-  return [ sum( distance < basket for distance in distance_list ) / len(distance_list) \
-           for basket in bins ]
+  return [ np.sum( [distance < basket for distance in distance_list] ) / len(distance_list) \
+           for basket in bins ]  # np.sum appears to be much faster than Python's standard sum!
 
 
 def create_distance_matrix( dataset_a, dataset_b, distance_fct, 
