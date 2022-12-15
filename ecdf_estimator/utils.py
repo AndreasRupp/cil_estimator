@@ -59,10 +59,10 @@ def evaluate( estimator, dataset ):
 
 def evaluate_from_empirical_cumulative_distribution_functions( estimator, vector ):
   mean_deviation = np.subtract( estimator.mean_vector , vector )
-  try:
-    return np.dot( mean_deviation , np.linalg.solve(estimator.covar_matrix, mean_deviation) )
-  except np.linalg.LinAlgError as error:
-    if not estimator.error_printed:
+  if not estimator.error_printed:
+    try:
+      return np.dot( mean_deviation , np.linalg.solve(estimator.covar_matrix, mean_deviation) )
+    except np.linalg.LinAlgError as error:
       estimator.error_printed = True
       print("WARNING: Covariance matrix is singular. CIL_estimator uses different topology.")
-    return np.dot( mean_deviation , mean_deviation )
+  return np.dot( mean_deviation , mean_deviation )

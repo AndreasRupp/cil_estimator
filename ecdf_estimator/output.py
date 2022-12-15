@@ -46,7 +46,7 @@ def plot_chi2_test( estimator, plotter = None, n_bins = None, plot_options = Non
 
 
 def save_data( estimator, name = "ecdf_estimator" ):
-  np.savetxt(name + '_bins.txt',         estimator.bins, fmt='%.6f')
   np.savetxt(name + '_ecdf-list.txt',    estimator.ecdf_list, fmt='%.6f')
   np.savetxt(name + '_mean-vector.txt',  estimator.mean_vector, fmt='%.6f')
   np.savetxt(name + '_covar-matrix.txt', estimator.covar_matrix, fmt='%.6f')
+  if hasattr(estimator, "bins"):  np.savetxt(name + '_bins.txt', estimator.bins, fmt='%.6f')
