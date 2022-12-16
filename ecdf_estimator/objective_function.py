@@ -2,7 +2,9 @@ import numpy as np
 import ecdf_estimator.utils as ecdf_aux
 
 
+## \brief  Objective function assembled in the stardard ecdf way.
 class standard:
+  ## \brief  Construct objective function.
   def __init__( self, dataset, bins, distance_fct, subset_sizes ):
     self.dataset        = dataset
     self.bins           = bins
@@ -27,8 +29,10 @@ class standard:
       self.evaluate_ecdf(dataset) )
 
 
+## \brief  Objective function assembled via bootstrapping.
 class bootstrap:
-  def __init__( self, dataset_a, dataset_b, bins, distance_fct, n_samples = 1000 ):
+  ## \brief  Construct objective function.
+  def __init__( self, dataset_a, dataset_b, bins, distance_fct, n_samples=1000 ):
     self.dataset_a      = dataset_a
     self.dataset_b      = dataset_b
     self.bins           = bins
@@ -53,8 +57,10 @@ class bootstrap:
       self.evaluate_ecdf(dataset) )
 
 
+## \brief  Objective function that consists of mutliple objective functions.
 class multiple:
-  def __init__( self, obj_fun_list, check_spectral_conditon = True ):
+  ## \brief  Construct objective function.
+  def __init__( self, obj_fun_list ):
     self.obj_fun_list = obj_fun_list
 
     n_rows, n_columns = 0, -1
@@ -74,11 +80,6 @@ class multiple:
     self.mean_vector    = ecdf_aux.mean_of_ecdf_vectors(self.ecdf_list)
     self.covar_matrix   = ecdf_aux.covariance_of_ecdf_vectors(self.ecdf_list)
     self.error_printed  = False
-
-    if check_spectral_conditon:
-      spectral_condition = np.linalg.cond(self.covar_matrix)
-      if spectral_condition > 1e3:
-        print("WARNING: The spectral condition of the covariance matrix is", spectral_condition)
 
   def evaluate( self, dataset ):
     vector = [ obj_fun.evaluate_ecdf(dataset) for obj_fun in self.obj_fun_list ]
