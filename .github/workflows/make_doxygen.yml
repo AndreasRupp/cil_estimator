@@ -19,7 +19,7 @@ jobs:
     - name: Run build and deploy action
       uses: HyperHDG/actions@doxygen
       with:
-        # deploy_doxygen: ${{ github.ref == 'refs/heads/main' }}
+        deploy_doxygen: ${{ github.ref == 'refs/heads/correct_comparison' }}
         doxygen_command: eval "mkdir build && cd build && cmake .. && make doxygen && cd .."
         ci_repo_token: ${{ secrets.ECDFTOKEN }}
         ci_user_name: HyperHDG-CI
