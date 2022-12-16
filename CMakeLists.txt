@@ -1,0 +1,24 @@
+cmake_minimum_required(VERSION 3.16)
+
+project(ecdf_estimator)
+find_package(Doxygen)
+
+if(DOXYGEN_FOUND)
+  set(DOXYGEN_TAB_SIZE 2)
+  set(DOXYGEN_TOC_INCLUDE_HEADINGS 0)
+  set(DOXYGEN_EXTRACT_ALL YES)
+  set(DOXYGEN_EXTRACT_PRIVATE YES)
+  set(DOXYGEN_EXTRACT_STATIC YES)
+  set(DPXYGEN_STRICT_PROTO_MATCHING YES)
+  set(DOXYGEN_USE_MATHJAX YES)
+  set(DOXYGEN_MACRO_EXPANSION YES)
+  set(DOXYGEN_EXPAND_ONLY_PREDEF YES)
+  set(DOXYGEN_CALL_GRAPH YES)
+  set(DOXYGEN_DOT_MULTI_TARGETS NO)
+  doxygen_add_docs(
+    doxygen
+    ${CMAKE_SOURCE_DIR}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    COMMENT Building Doxygen documentation...
+  )
+endif()
