@@ -37,10 +37,24 @@ def estimate_radii_values( dataset_a, dataset_b, distance_fct, rel_offset=0.05, 
 #  \param   min_value_shift  Exclude values that are smaller than min value of distances plus this.
 #  \param   max_value_shift  Exclude values that are largr than max value of distances plus this.
 #  \retval  target_val       The value of the target function.
-def choose_bins(distance_list, possible_bins, n_bins=10, choose_type="uniform_y",
+def choose_bins(distance_list, possible_bins, n_bins=10, choose_type="uniform_y_dist",
   min_value_shift=None, max_value_shift=None ):
   ecdf_curve = ecdf_aux.empirical_cumulative_distribution_vector(distance_list, possible_bins)
-  if choose_type == "uniform_y":
+  if choose_type == "uniform_y_dist":
+    max_value, min_value = np.amax( ecdf_curve ), np.amin( ecdf_curve )
+    if min_value_shift is None:  min_value_shift = (max_value - min_value) / n_bins
+    if max_value_shift is None:  max_value_shift = (min_value - max_value) / n_bins
+    step_size = ( (max_value+max_value_shift) - (min_value+min_value_shift) ) / n_bins
+    indices = []
+    for index in range(n_bins):
+      if not indices:
+        indices.append( np.argmax(ecdf_curve >= min_value+min_value_shift) )
+      elif ecdf_curve[indices[-1]] + step_size > max_value+max_value_shift:
+        continue
+      else:
+        indices.append( np.argmax(ecdf_curve >= ecdf_curve[indices[-1]]+step_size) )
+    return [ possible_bins[i] for i in indices ]
+  elif choose_type == "uniform_y":
     max_value, min_value = np.amax( ecdf_curve ), np.amin( ecdf_curve )
     if min_value_shift is None:  min_value_shift = (max_value - min_value) / n_bins
     if max_value_shift is None:  max_value_shift = (min_value - max_value) / n_bins

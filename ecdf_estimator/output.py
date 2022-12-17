@@ -37,16 +37,12 @@ def plot_mean_vector( estimator, plotter=plt, plot_options="g." ):
 #
 #  \param   estimator      The estimator class defining the specifics of the target function.
 #  \param   plotter        Python object to which the plot should be added. Defaults to plt.
-#  \param   n_bins         Number of degrees of freedom for chi square test.
 #  \param   plot_options   String describing the options for plotting.
 #  \retval  plotter        Python object to whhich the plot has been added.
-def plot_chi2_test( estimator, plotter=plt, n_bins=None, plot_options="r-" ):
+def plot_chi2_test( estimator, plotter=plt, plot_options="r-" ):
   n_logl = [ ecdf_aux.evaluate_from_empirical_cumulative_distribution_functions(estimator, vector) \
              for vector in np.transpose(estimator.ecdf_list) ]
-
-  if n_bins is None:  khi, bins = np.histogram( n_logl )
-  else:               khi, bins = np.histogram( n_logl, n_bins )
-
+  khi, bins = np.histogram( n_logl )
   khi_n = [ x / sum(khi) / (bins[1] - bins[0]) for x in khi ]
   plotter.hist(bins[:-1], bins, weights=khi_n)
   df = len( estimator.ecdf_list )
