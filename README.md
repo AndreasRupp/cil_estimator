@@ -4,9 +4,11 @@
 https://badge.fury.io/py/ecdf_estimator)
 [![PyPI Downloads](https://img.shields.io/pypi/dm/ecdf_estimator.svg?label=PyPI%20downloads)](
 https://pypi.org/project/ecdf_estimator/)
-[![GitHub Repository](https://img.shields.io/badge/Source_code-GitHub-red.svg)](
+[![GitHub Repository](https://img.shields.io/badge/Source_code-GitHub-blue.svg)](
 https://github.com/AndreasRupp/ecdf_estimator)
-[![GitHub Issues](https://img.shields.io/badge/Issue_tracking-GitHub-blue.svg)](
+[![Doxygen](https://img.shields.io/badge/Doxygen-GitHub-blue.svg)](
+https://andreasrupp.github.io/ecdf-estimator_auto-pages)
+[![GitHub Issues](https://img.shields.io/badge/Issue_tracking-GitHub-red.svg)](
 https://github.com/AndreasRupp/ecdf_estimator/issues)
 
 It contains a Python based framework for parameter estimation, which is currently under
