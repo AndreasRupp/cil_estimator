@@ -46,13 +46,12 @@ def choose_bins(distance_list, possible_bins, n_bins=10, choose_type="uniform_y_
     if max_value_shift is None:  max_value_shift = (min_value - max_value) / n_bins
     step_size = ( (max_value+max_value_shift) - (min_value+min_value_shift) ) / n_bins
     indices = []
-    for index in range(n_bins):
-      if not indices:
-        indices.append( np.argmax(ecdf_curve >= min_value+min_value_shift) )
-      elif ecdf_curve[indices[-1]] + step_size > max_value+max_value_shift:
-        continue
-      else:
-        indices.append( np.argmax(ecdf_curve >= ecdf_curve[indices[-1]]+step_size) )
+    for _ in range(n_bins):
+      if not indices:  index = np.argmax( ecdf_curve >= min_value + min_value_shift )
+      else:            index = np.argmax( ecdf_curve >= ecdf_curve[indices[-1]] + step_size )
+
+      if ecdf_curve[index] > max_value+max_value_shift:  break
+      indices.append( ind_val )
     return [ possible_bins[i] for i in indices ]
   elif choose_type == "uniform_y":
     max_value, min_value = np.amax( ecdf_curve ), np.amin( ecdf_curve )
@@ -60,6 +59,7 @@ def choose_bins(distance_list, possible_bins, n_bins=10, choose_type="uniform_y_
     if max_value_shift is None:  max_value_shift = (min_value - max_value) / n_bins
     rad_bdr   = np.linspace( min_value+min_value_shift , max_value+max_value_shift , num=n_bins )
     indices   = [ np.argmax( ecdf_curve >= bdr ) for bdr in rad_bdr ]
+    indices   = [ index if ecdf_curve[index] <= max_value+max_value_shift for index in indices ]
     unique_indices = np.unique(indices)
     if len(indices) != len(unique_indices):
       print("WARNING: Some bins were duplicate. These duplicates are removed from the list.")
