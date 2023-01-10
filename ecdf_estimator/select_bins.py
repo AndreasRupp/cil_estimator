@@ -51,7 +51,7 @@ def choose_bins(distance_list, possible_bins, n_bins=10, choose_type="uniform_y_
       else:            index = np.argmax( ecdf_curve >= ecdf_curve[indices[-1]] + step_size )
 
       if ecdf_curve[index] > max_value+max_value_shift:  break
-      indices.append( ind_val )
+      indices.append( index )
     return [ possible_bins[i] for i in indices ]
   elif choose_type == "uniform_y":
     max_value, min_value = np.amax( ecdf_curve ), np.amin( ecdf_curve )
