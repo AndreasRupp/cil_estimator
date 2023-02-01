@@ -50,6 +50,20 @@ Certificate of Origin version 1.1 is quoted in [DeveloperCertificateOfOrigin.txt
 https://github.com/AndreasRupp/ecdf_estimator/blob/main/DeveloperCertificateOfOrigin.txt).
 
 
+## Referencing the library
+
+In addition to the terms imposed by the LGPL v2.1 or later, we ask for the following courtesy:
+
+> Every publication presenting numerical results obtained with the help of `ecdf_estimator` should
+> state the name of the library and cite one or more of the following references  
+> - A. Kazarnikov, N. Ray, H. Haario, J. Lappalainen, and A. Rupp  
+>   ***Parameter estimation for cellular automata***  
+>   arXiv preprint, doi: [10.48550/arXiv.2301.13320](https://doi.org/10.48550/arXiv.2301.13320)
+
+This is the usual, fair way of giving credit to contributors to a scientific result. In addition, it
+helps us justify our effort in developing `ecdf_estimator` as an academic undertaking.
+
+
 ## Contact
 
 For further questions regarding licensing and commercial use please contact Andreas Rupp directly
