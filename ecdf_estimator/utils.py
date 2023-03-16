@@ -32,8 +32,18 @@ def empirical_cumulative_distribution_vector( distance_list, bins ):
 def create_distance_matrix( dataset_a, dataset_b, distance_fct, 
   start_a=0, end_a=None, start_b=0, end_b=None ):
   if end_a is None:  end_a = len(dataset_a)
-  if end_b is None:  end_b = len(dataset_b)
 
+  if dataset_b is None:
+    if not end_a == len(dataset_a) or not start_a == 0:
+      raise Exception("You need to use the whole dataset")
+    matrix = [ [0.] * (end_a - start_a) for _ in range(end_a - start_a) ]
+    for i in range(end_a - start_a):
+      for j in range(i):
+        matrix[i,j] = distance_fct(dataset_a[i], dataset_a[j])
+        matrix[j,i] = matrix[i,j]
+    return matrix
+
+  if end_b is None:  end_b = len(dataset_b)
   if end_a < start_a or end_b < start_b:
     raise Exception("Invalid subset indices chosen.")
 
@@ -54,7 +64,8 @@ def create_distance_matrix( dataset_a, dataset_b, distance_fct,
 #  \param   distance_fct   Function generating a generalized distance between members of dataset.
 #  \param   subset_indices List of starting (and ending) indices of disjointly subdivided dataset.
 #  \retval  ecdf_list      ecdf vector enlisting values for subset combinations.
-def empirical_cumulative_distribution_vector_list( dataset, bins, distance_fct, subset_indices ):
+def empirical_cumulative_distribution_vector_list(
+  dataset, bins, distance_fct, subset_indices, compare_all=True ):
   if not all(subset_indices[i] <= subset_indices[i+1] for i in range(len(subset_indices)-1)):
     raise Exception("Subset indices are out of order.")
   if subset_indices[0] != 0 or subset_indices[-1] != len(dataset):
@@ -63,6 +74,9 @@ def empirical_cumulative_distribution_vector_list( dataset, bins, distance_fct, 
   matrix = []
   for i in range(len(subset_indices)-1):
     for j in range(i):
+      if not compare_all and \
+        subset_indices[i+1] - subset_indices[i] == subset_indices[j+1] - subset_indices[j]:
+        continue
       distance_list = create_distance_matrix(dataset, dataset, distance_fct, 
         subset_indices[i], subset_indices[i+1], subset_indices[j], subset_indices[j+1])
       while isinstance(distance_list[0], list):
@@ -80,13 +94,18 @@ def empirical_cumulative_distribution_vector_list( dataset, bins, distance_fct, 
 #  \param   n_samples      Number of perturbatins of the datasets.
 #  \retval  ecdf_list      ecdf vector enlisting values for subset combinations.
 def empirical_cumulative_distribution_vector_list_bootstrap(
-  dataset_a, dataset_b, bins, distance_fct, n_samples ):
-  distance_matrix = np.array( create_distance_matrix(dataset_a, dataset_b, distance_fct) )
+  dataset, bins, distance_fct, n_elements_a, n_elements_b, n_samples ):
+  distance_matrix = np.array( create_distance_matrix(dataset, None, distance_fct) )
   matrix = []
   for _ in range(n_samples):
-    permute_a = np.random.randint(distance_matrix.shape[0], size=distance_matrix.shape[0])
-    permute_b = np.random.randint(distance_matrix.shape[1], size=distance_matrix.shape[1])
-    distance_list = np.ndarray.flatten( distance_matrix[permute_a,permute_b] )
+    indices  = [i for i in range(len(dataset))]
+    select_a = np.random.ranint(len(dataset), size=n_elements_a)
+    indices[select_a] = None
+    inidces = [x for x in indices if x is not None]
+    select_b = np.random.ranint(len(indices), size=n_elements_b)
+    select_b = indices[select_b]
+
+    distance_list = np.ndarray.flatten( distance_matrix[select_a,select_b] )
     matrix.append( empirical_cumulative_distribution_vector(distance_list, bins) )
   return np.transpose(matrix)
 
