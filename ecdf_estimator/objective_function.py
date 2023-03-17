@@ -46,7 +46,7 @@ class bootstrap:
     self.bins           = bins
     self.distance_fct   = distance_fct
     self.n_elements_a   = n_elements_a
-    self.n_eleemnts_b   = n_elements_b
+    self.n_elements_b   = n_elements_b
     self.n_samples      = n_samples
     self.ecdf_list      = ecdf_aux.empirical_cumulative_distribution_vector_list_bootstrap(
                             dataset, bins, distance_fct, n_elements_a, n_elements_b, n_samples )
@@ -55,11 +55,11 @@ class bootstrap:
     self.error_printed  = False
 
   def evaluate_ecdf( self, dataset ):
-    if len(dataset) != n_elements_a:
+    if len(dataset) != self.n_elements_a:
       print("WARNING: The size of the dataset should be equal to n_elements_a!")
     
-    samples = np.random.randint(len(dataset), size=n_elements_b)
-    comparison_set = dataset[samples]
+    samples = np.random.randint(len(dataset), size=self.n_elements_b)
+    comparison_set = [ dataset[sample] for sample in samples ]
 
     distance_list = ecdf_aux.create_distance_matrix(comparison_set, dataset, self.distance_fct)
     distance_list = [item for sublist in distance_list for item in sublist]

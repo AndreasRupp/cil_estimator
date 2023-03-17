@@ -104,7 +104,7 @@ def empirical_cumulative_distribution_vector_list_bootstrap(
     select_b = np.random.randint(len(indices), size=n_elements_b)
     select_b = [ indices[x] for x in select_b ]
 
-    distance_list = np.ndarray.flatten( distance_matrix[select_a,select_b] )
+    distance_list = np.ndarray.flatten( distance_matrix[np.ix_(select_a,select_b)] )
     matrix.append( empirical_cumulative_distribution_vector(distance_list, bins) )
   return np.transpose(matrix)
 
