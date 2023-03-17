@@ -39,8 +39,8 @@ def create_distance_matrix( dataset_a, dataset_b, distance_fct,
     matrix = [ [0.] * (end_a - start_a) for _ in range(end_a - start_a) ]
     for i in range(end_a - start_a):
       for j in range(i):
-        matrix[i,j] = distance_fct(dataset_a[i], dataset_a[j])
-        matrix[j,i] = matrix[i,j]
+        matrix[i][j] = distance_fct(dataset_a[i], dataset_a[j])
+        matrix[j][i] = matrix[i][j]
     return matrix
 
   if end_b is None:  end_b = len(dataset_b)
@@ -99,11 +99,10 @@ def empirical_cumulative_distribution_vector_list_bootstrap(
   matrix = []
   for _ in range(n_samples):
     indices  = [i for i in range(len(dataset))]
-    select_a = np.random.ranint(len(dataset), size=n_elements_a)
-    indices[select_a] = None
-    inidces = [x for x in indices if x is not None]
-    select_b = np.random.ranint(len(indices), size=n_elements_b)
-    select_b = indices[select_b]
+    select_a = np.random.randint(len(dataset), size=n_elements_a)
+    inidces = [x for x in indices if x not in select_a]
+    select_b = np.random.randint(len(indices), size=n_elements_b)
+    select_b = [ indices[x] for x in select_b ]
 
     distance_list = np.ndarray.flatten( distance_matrix[select_a,select_b] )
     matrix.append( empirical_cumulative_distribution_vector(distance_list, bins) )

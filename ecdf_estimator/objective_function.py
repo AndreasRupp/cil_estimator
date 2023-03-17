@@ -8,7 +8,7 @@ class standard:
   def __init__( self, dataset, bins, distance_fct, subset_sizes, compare_all=True ):
     if len(np.unique(subset_sizes)) > 2:
       raise Exception("ERROR: There should be max 2 different sizes of subsets!")
-    
+
     self.dataset        = dataset
     self.bins           = bins
     self.distance_fct   = distance_fct
@@ -41,12 +41,12 @@ class standard:
 ## \brief  Objective function assembled via bootstrapping.
 class bootstrap:
   ## \brief  Construct objective function.
-  def __init__( self, dataset, bins, distance_fct, n_elements_a, n_eleemnts_b, n_samples=1000 ):
+  def __init__( self, dataset, bins, distance_fct, n_elements_a, n_elements_b, n_samples=1000 ):
     self.dataset        = dataset
     self.bins           = bins
     self.distance_fct   = distance_fct
     self.n_elements_a   = n_elements_a
-    self.n_eleemnts_b   = n_eleemnts_b
+    self.n_eleemnts_b   = n_elements_b
     self.n_samples      = n_samples
     self.ecdf_list      = ecdf_aux.empirical_cumulative_distribution_vector_list_bootstrap(
                             dataset, bins, distance_fct, n_elements_a, n_elements_b, n_samples )
@@ -58,7 +58,7 @@ class bootstrap:
     if len(dataset) != n_elements_a:
       print("WARNING: The size of the dataset should be equal to n_elements_a!")
     
-    samples = np.random.ranint(len(dataset), size=n_elements_b)
+    samples = np.random.randint(len(dataset), size=n_elements_b)
     comparison_set = dataset[samples]
 
     distance_list = ecdf_aux.create_distance_matrix(comparison_set, dataset, self.distance_fct)
