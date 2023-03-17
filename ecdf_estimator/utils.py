@@ -31,21 +31,22 @@ def empirical_cumulative_distribution_vector( distance_list, bins ):
 #  \retval  distance_mat   Matrix of generalized distances.
 def create_distance_matrix( dataset_a, dataset_b, distance_fct, 
   start_a=0, end_a=None, start_b=0, end_b=None ):
-  if end_a is None:  end_a = len(dataset_a)
+  if end_a is None:   end_a = len(dataset_a)
+  if end_a < start_a: raise Exception("Invalid subset indices chosen.")
 
   if dataset_b is None:
-    if not end_a == len(dataset_a) or not start_a == 0:
-      raise Exception("You need to use the whole dataset")
-    matrix = [ [0.] * (end_a - start_a) for _ in range(end_a - start_a) ]
-    for i in range(end_a - start_a):
+    if end_a != len(dataset_a) or start_a != 0: raise Exception("You need to use the whole dataset")
+    
+    matrix = [ [0.] * (end_a - start_a) for _ in range(end_a) ]
+    for i in range(end_a):
       for j in range(i):
         matrix[i][j] = distance_fct(dataset_a[i], dataset_a[j])
         matrix[j][i] = matrix[i][j]
     return matrix
+  # end: if dataset_b is None
 
-  if end_b is None:  end_b = len(dataset_b)
-  if end_a < start_a or end_b < start_b:
-    raise Exception("Invalid subset indices chosen.")
+  if end_b is None:   end_b = len(dataset_b)
+  if end_b < start_b: raise Exception("Invalid subset indices chosen.")
 
   return [ [ distance_fct(dataset_a[i], dataset_b[j]) for j in range(start_b, end_b) ] \
              for i in range(start_a, end_a) ]
@@ -98,11 +99,9 @@ def empirical_cumulative_distribution_vector_list_bootstrap(
   distance_matrix = np.array( create_distance_matrix(dataset, None, distance_fct) )
   matrix = []
   for _ in range(n_samples):
-    indices  = [i for i in range(len(dataset))]
     select_a = np.random.randint(len(dataset), size=n_elements_a)
-    inidces = [x for x in indices if x not in select_a]
-    select_b = np.random.randint(len(indices), size=n_elements_b)
-    select_b = [ indices[x] for x in select_b ]
+    inidces  = [ i for i in range(len(dataset)) if i not in select_a ]
+    select_b = [ indices[x] for x in np.random.randint(len(indices), size=n_elements_b) ]
 
     distance_list = np.ndarray.flatten( distance_matrix[np.ix_(select_a,select_b)] )
     matrix.append( empirical_cumulative_distribution_vector(distance_list, bins) )
