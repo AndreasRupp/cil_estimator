@@ -19,7 +19,8 @@ def empirical_cumulative_distribution_vector( distance_list, bins ):
 #  This function creates a matrix whose (i,j)th entry corresponds to the distance between element
 #  i of a subset of dataset_a and element j of a subset of dataset_b. The respective subsets are
 #  characterized by the indices of the respective first and last elements.
-#  Notably, the matrix entries can be numbers or more general data types (such as lists).
+#  Notably, the matrix entries can be numbers or more general data types (such as lists). If
+#  dataset_b is None, all entries of dataset_a in [start_a, end_a] are compared against one another.
 #
 #  \param   dataset_a      First dataset, whose subset is compared to second dataset.
 #  \param   dataset_b      Second dataset, whose subset is compared to first dataset.
@@ -64,6 +65,7 @@ def create_distance_matrix( dataset_a, dataset_b, distance_fct,
 #  \param   bins           List of bins.
 #  \param   distance_fct   Function generating a generalized distance between members of dataset.
 #  \param   subset_indices List of starting (and ending) indices of disjointly subdivided dataset.
+#  \param   compare_all    If False, only subsets of different sizes are compared. Deafault: True
 #  \retval  ecdf_list      ecdf vector enlisting values for subset combinations.
 def empirical_cumulative_distribution_vector_list(
   dataset, bins, distance_fct, subset_indices, compare_all=True ):
@@ -88,8 +90,9 @@ def empirical_cumulative_distribution_vector_list(
 
 ## \brief   Same as empirical_cumulative_distribution_vector_list, but for bootstrapping.
 #
-#  \param   dataset_a      First dataset, whose elements are compared to second dataset.
-#  \param   dataset_b      Second dataset, whose elements iare compared to first dataset.
+#  \param   dataset        Dataset, whose elements are compared to one another.
+#  \param   n_elements_a   Number of elements in first (smaller) subset.
+#  \param   n_elements_b   Number of elements in second (larger) subset.
 #  \param   bins           List of bins.
 #  \param   distance_fct   Function generating a generalized distance between members of dataset.
 #  \param   n_samples      Number of perturbatins of the datasets.
