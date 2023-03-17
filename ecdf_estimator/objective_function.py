@@ -24,11 +24,16 @@ class standard:
   def evaluate_ecdf(self, dataset):
     if len(dataset) not in self.subset_sizes:
       print("WARNING: Dataset size is different!")
-    comparison_set = np.random.randint( len(self.subset_sizes) )
-    while not self.compare_all and self.subset_sizes[i] == len(dataset):
-      comparison_set = np.random.randint( len(self.subset_sizes) )
+    
+    if self.compare_all:
+      comparison_ind = np.random.randint( len(self.subset_sizes) )
+    else:
+      comparison_ind = [ i for i in range(len(self.subset_sizes)) \
+                         if self.subset_sizes[i] == len(dataset) ]
+      comparison_ind = comparison_ind[np.random.randint(len(comparison_ind))]
+    
     distance_list = ecdf_aux.create_distance_matrix(self.dataset, dataset,
-      self.distance_fct, self.subset_indices[comparison_set], self.subset_indices[comparison_set+1])
+      self.distance_fct, self.subset_indices[comparison_ind], self.subset_indices[comparison_ind+1])
     while isinstance(distance_list[0], list):
       distance_list = [item for sublist in distance_list for item in sublist]
     return ecdf_aux.empirical_cumulative_distribution_vector(distance_list, self.bins)
