@@ -136,7 +136,7 @@ class multiple:
 
   ## \private
   def evaluate( self, dataset ):
-    vector = [ obj_fun.evaluate_ecdf(dataset) for obj_fun in self.obj_fun_list ]
+    vector = [ obj_fun.evaluate_ecdf(dataset[i]) for i,obj_fun in enumerate(self.obj_fun_list) ]
     while isinstance(vector[0], list):
       vector = [item for sublist in vector for item in sublist]
     return ecdf_aux.evaluate_from_empirical_cumulative_distribution_functions( self, vector )
