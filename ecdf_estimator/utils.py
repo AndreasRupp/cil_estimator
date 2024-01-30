@@ -1,4 +1,5 @@
 import numpy as np
+from inspect import signature
 
 
 ## \brief   Create list of ECDF values.
@@ -32,13 +33,21 @@ def empirical_cumulative_distribution_vector( distance_list, bins ):
 #  \retval  distance_mat   Matrix of generalized distances.
 def create_distance_matrix( dataset_a, dataset_b, distance_fct, 
   start_a=0, end_a=None, start_b=0, end_b=None ):
+  n_params = len(signature(distance_fct).parameters)
+
   if end_a is None:   end_a = len(dataset_a)
   if end_a < start_a: raise Exception("Invalid subset indices chosen.")
+  if n_params < 1 or n_params > 2:
+    raise Exception("Distance function must accept one or two arguments.")
+
+  if n_params == 1:
+    return [ distance_fct(dataset_a[i]) for i in range(start_a, end_a) ]
+  # end: if n_params == 1
 
   if dataset_b is None:
     if end_a != len(dataset_a) or start_a != 0: raise Exception("You need to use the whole dataset")
     
-    matrix = [ [0.] * (end_a - start_a) for _ in range(end_a) ]
+    matrix = [ [0.] * (end_a - start_a) for _ in range(start_a, end_a) ]
     for i in range(end_a):
       for j in range(i):
         matrix[i][j] = distance_fct(dataset_a[i], dataset_a[j])
@@ -69,12 +78,26 @@ def create_distance_matrix( dataset_a, dataset_b, distance_fct,
 #  \retval  ecdf_list      ecdf vector enlisting values for subset combinations.
 def empirical_cumulative_distribution_vector_list(
   dataset, bins, distance_fct, subset_indices, compare_all=True ):
+  n_params = len(signature(distance_fct).parameters)
+  matrix = []
+
   if not all(subset_indices[i] <= subset_indices[i+1] for i in range(len(subset_indices)-1)):
     raise Exception("Subset indices are out of order.")
   if subset_indices[0] != 0 or subset_indices[-1] != len(dataset):
     raise Exception("Not all elements of the dataset are distributed into subsets.")
+  if n_params < 1 or n_params > 2:
+    raise Exception("Distance function must accept one or two arguments.")
 
-  matrix = []
+  if n_params == 1:
+    for i in range(len(subset_indices)-1):
+      distance_list = create_distance_matrix(dataset, distance_fct, None,
+        subset_indices[i], subset_indices[i+1])
+      while isinstance(distance_list[0], list):
+        distance_list = [item for sublist in distance_list for item in sublist]
+      matrix.append( empirical_cumulative_distribution_vector(distance_list, bins) )
+    return np.transpose(matrix)
+  # end: if n_params == 1
+
   for i in range(len(subset_indices)-1):
     for j in range(i):
       if not compare_all and \
@@ -87,6 +110,7 @@ def empirical_cumulative_distribution_vector_list(
       matrix.append( empirical_cumulative_distribution_vector(distance_list, bins) )
 
   return np.transpose(matrix)
+
 
 ## \brief   Same as empirical_cumulative_distribution_vector_list, but for bootstrapping.
 #
