@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
   name='ecdf_estimator',
-  version='0.1.4',
+  version='0.1.5',
   author='Andreas Rupp',
   author_email='info@rupp.ink',
   description='Python package for parameter estimation of random data',
@@ -20,6 +20,7 @@ setuptools.setup(
   install_requires=[
     'requests',
     'numpy>=1.19.5',
-    'matplotlib>=3.6'
+    'matplotlib>=3.6',
+    'inspect>=23.3'
   ],
 )
