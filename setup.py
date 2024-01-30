@@ -20,7 +20,6 @@ setuptools.setup(
   install_requires=[
     'requests',
     'numpy>=1.19.5',
-    'matplotlib>=3.6',
-    'inspect>=23.3'
+    'matplotlib>=3.6'
   ],
 )
