@@ -90,7 +90,7 @@ def empirical_cumulative_distribution_vector_list(
 
   if n_params == 1:
     for i in range(len(subset_indices)-1):
-      distance_list = create_distance_matrix(dataset, distance_fct, None,
+      distance_list = create_distance_matrix(dataset, None, distance_fct,
         subset_indices[i], subset_indices[i+1])
       while isinstance(distance_list[0], list):
         distance_list = [item for sublist in distance_list for item in sublist]
