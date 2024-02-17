@@ -1,5 +1,6 @@
 import numpy as np
 from inspect import signature
+import itertools as it
 
 
 ## \brief   Create list of ECDF values.
@@ -31,35 +32,35 @@ def empirical_cumulative_distribution_vector( distance_list, bins ):
 #  \param   start_b        Starting index of considered subset of dataset_b. Defaults to 0. 
 #  \param   end_b          Last (exclusive) index of consideres subset. Defaults to len(dataset).
 #  \retval  distance_mat   Matrix of generalized distances.
-def create_distance_matrix( dataset_a, dataset_b, distance_fct, 
-  start_a=0, end_a=None, start_b=0, end_b=None ):
+def create_distance_matrix(dataset_list, distance_fct, start_index_list=None, end_index_list=None):
+  if start_index_list is None:  start_index_list = [0] * len(dataset_list)
+  if end_index_list is None:    end_index_list = [ len(item) for item in dataset_list ]
+
   n_params = len(signature(distance_fct).parameters)
+  if ( n_params != 2 or len(dataset_list) != 1 )  and  ( len(dataset_list) != n_params or \
+    len(start_index_list) != n_params or len(end_index_list) != n_params ):
+    raise Exception("Length of dataset list must be equal to the length of the start index list, "+\
+      "the length of the end index list, and the number of arguments of the distance function. "+\
+      "\nAlternatively, you can use a single dataset with a binary distance function.")
+  for k in len(start_index_list):
+    if end_index_list[k] < start_index_list[k]: raise Exception("Invalid subset indices chosen.")
 
-  if end_a is None:   end_a = len(dataset_a)
-  if end_a < start_a: raise Exception("Invalid subset indices chosen.")
-  if n_params < 1 or n_params > 2:
-    raise Exception("Distance function must accept one or two arguments.")
-
-  if n_params == 1:
-    return [ distance_fct(dataset_a[i]) for i in range(start_a, end_a) ]
-  # end: if n_params == 1
-
-  if dataset_b is None:
-    if end_a != len(dataset_a) or start_a != 0: raise Exception("You need to use the whole dataset")
-    
-    matrix = [ [0.] * (end_a - start_a) for _ in range(start_a, end_a) ]
+  if n_params == 2 and len(dataset_list) == 1:
+    if end_index_list[0] != len(dataset_a) or start_index_list[0] != 0:
+      raise Exception("You need to use the whole dataset")
+    matrix = [ [0.] * (end_index_list[0] - start_index_list[0])
+               for _ in range(start_index_list[0], end_index_list[0]) ]
     for i in range(end_a):
       for j in range(i):
-        matrix[i][j] = distance_fct(dataset_a[i], dataset_a[j])
+        matrix[i][j] = distance_fct(dataset_list[0][i], dataset_list[0][j])
         matrix[j][i] = matrix[i][j]
     return matrix
-  # end: if dataset_b is None
+  # end: if n_params == 2 and len(dataset_list) == 1
 
-  if end_b is None:   end_b = len(dataset_b)
-  if end_b < start_b: raise Exception("Invalid subset indices chosen.")
+  used_data_list = [ dataset[param][start_index_list[param]:end_index_list[param]] \
+                     for param in range(n_params) ]
 
-  return [ [ distance_fct(dataset_a[i], dataset_b[j]) for j in range(start_b, end_b) ] \
-             for i in range(start_a, end_a) ]
+  return [ distance_fct(*item) for item in it.product(*used_data_list) ]
 
 
 ## \brief   Assemble ecdf vector, whose elements are list of values for all subset combinations.
@@ -85,8 +86,6 @@ def empirical_cumulative_distribution_vector_list(
     raise Exception("Subset indices are out of order.")
   if subset_indices[0] != 0 or subset_indices[-1] != len(dataset):
     raise Exception("Not all elements of the dataset are distributed into subsets.")
-  if n_params < 1 or n_params > 2:
-    raise Exception("Distance function must accept one or two arguments.")
 
   if n_params == 1:
     for i in range(len(subset_indices)-1):
