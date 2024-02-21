@@ -1,4 +1,5 @@
 import numpy as np
+from inspect import signature
 import ecdf_estimator.utils as ecdf_aux
 
 
@@ -39,15 +40,28 @@ class standard:
     if len(dataset) not in self.subset_sizes:
       print("WARNING: Dataset size is different!")
     
+    n_params = len(signature(self.distance_fct).parameters)
+    comparison_ind = []
     if self.compare_all:
-      comparison_ind = np.random.randint( len(self.subset_sizes) )
+      for _ in range(n_params-1):
+        helper = np.random.randint( len(self.subset_sizes) )
+        while helper in comparison_ind:
+          helper = np.random.randint( len(self.subset_sizes) )
+        comparison_ind.append(helper)
     else:
-      comparison_ind = [ i for i in range(len(self.subset_sizes)) \
-                         if self.subset_sizes[i] == len(dataset) ]
-      comparison_ind = comparison_ind[np.random.randint(len(comparison_ind))]
+      set_ind = [ i for i in range(len(self.subset_sizes)) if self.subset_sizes[i] == len(dataset) ]
+      for _ in range(n_params-1):
+        helper = helper_ind[np.random.randint(len(helper_ind))]
+        while helper in comparison_ind:
+          helper = np.random.randint( len(self.subset_sizes) )
+        comparison_ind.append(helper)
+
+    dataset_list = [dataset] + [self.dataset] * (n_params-1)
+    start_index_list = [0] + [ self.subset_indices[index] for index in comparison_ind ]
+    end_index_list = [len(dataset)] + [ self.subset_indices[index+1] for index in comparison_ind ]
     
-    distance_list = ecdf_aux.create_distance_matrix(self.dataset, dataset,
-      self.distance_fct, self.subset_indices[comparison_ind], self.subset_indices[comparison_ind+1])
+    distance_list = ecdf_aux.create_distance_matrix(dataset_list, self.distance_fct, \
+      start_index_list, end_index_list)
     while isinstance(distance_list[0], list):
       distance_list = [item for sublist in distance_list for item in sublist]
     return ecdf_aux.empirical_cumulative_distribution_vector(distance_list, self.bins)
