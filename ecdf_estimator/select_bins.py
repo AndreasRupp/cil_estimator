@@ -7,17 +7,17 @@ import itertools as it
 ## \brief  Heuristically determine region in which useful bin/radii values are located.
 #
 #  \param   data             The whole training data from which some subsets are selected.
-#  \param   subset_size      The size of one subset.
+#  \param   subset_sizes     The size of the subsets.
 #  \param   distance_fct     Functions that evaluates (generalized) distance between subset members.
 #  \param   rel_offset       Relative offset to determin interval of reasonable bin values.
 #  \param   rel_cutoff       Relative cutoff of the interval of reasonable bin values.            
 #  \retval  target_val       The value of the target function.
-def estimate_radii_values( data, subset_size, distance_fct, rel_offset=0.05, rel_cutoff=0.05 ):
-  
-  n_params = len(signature(distance_fct).parameters)
+def estimate_radii_values( data, subset_sizes, distance_fct, rel_offset=0.05, rel_cutoff=0.05 ):
+  n_params, n_elem = len(signature(distance_fct).parameters), 0
   datasets = []
   for i in range(n_params):
-    datasets.append(data[i*subset_size:i*subset_size + subset_size])
+    datasets.append(data[ n_elem : n_elem + subset_sizes[i] ])
+    n_elem += subset_sizes[i]
 
   distance_data = [ distance_fct(*item) for item in it.product(*datasets) ]
   distance_data = np.sort(distance_data)
