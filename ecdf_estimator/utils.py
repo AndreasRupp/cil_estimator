@@ -17,6 +17,7 @@ def empirical_cumulative_distribution_vector( distance_list, bins ):
   return [ np.sum( [distance < basket for distance in distance_list] ) / len(distance_list) \
            for basket in bins ]  # np.sum appears to be much faster than Python's standard sum!
 
+
 ## \brief   Assemble list of (generalized) distances between elemenst of datasets.
 #
 #  This function creates a list of distances between elements of subsets which are compared to 
@@ -24,14 +25,12 @@ def empirical_cumulative_distribution_vector( distance_list, bins ):
 #  in the distance function. The distances of all value combinations of these subsets are computed. 
 #
 #  \param   dataset_list       The list of datasets which are compared to each other.
-#  \param   distance_fct       Function generating a generalized distance between members of datasets.
-#  \param   start_index_list   The start indexes to choose datasets which are compared to each other. Defaults to None.
-#  \param   end_index_list     The end indexes to choose datasets which are compared to each other. Defaults to None.
+#  \param   distance_fct       Generalized distance function  among several datasets.
+#  \param   start_index_list   Starting indices of the datasets. Defaults to None.
+#  \param   end_index_list     Ending indices of the datasets. Defaults to None.
 #  \retval  distance_mat       Matrix of generalized distances.
 def create_distance_matrix(dataset_list, distance_fct, start_index_list=None, end_index_list=None):
-
   if start_index_list is None:  start_index_list = [0] * len(dataset_list)
-
   if end_index_list is None:    
     if isinstance(dataset_list[0], collections.abc.Sequence):
       end_index_list = [ len(item) for item in dataset_list ]
@@ -53,7 +52,6 @@ def create_distance_matrix(dataset_list, distance_fct, start_index_list=None, en
     return [distance_fct(dataset_list[0][i]) for i in range(start_index_list[0], end_index_list[0])]
 
   return [ distance_fct(*item) for item in it.product(*dataset_list)]
-
 
 
 ## \brief   Assemble ecdf vector, whose elements are list of values for all subset combinations.
@@ -85,7 +83,8 @@ def empirical_cumulative_distribution_vector_list(
 
   if n_params == 1:
     for i in range(len(subset_indices)-1):
-      distance_list = create_distance_matrix([dataset], distance_fct, [subset_indices[i]], [subset_indices[i+1]])
+      distance_list = create_distance_matrix(
+        [dataset], distance_fct, [subset_indices[i]], [subset_indices[i+1]] )
       
       while isinstance(distance_list[0], list):
         distance_list = [item for sublist in distance_list for item in sublist]
@@ -95,21 +94,19 @@ def empirical_cumulative_distribution_vector_list(
   # end: if n_params == 1
 
   combinations = it.combinations(list(range(0,len(subset_indices)-1)), n_params)
-
   dataset_list = []
-
   for combo in combinations:
-    dataset_list = [dataset[subset_indices[combo[i]]:subset_indices[combo[i]+1]] for i in range(len(combo))]
+    dataset_list = [ dataset[subset_indices[combo[i]]:subset_indices[combo[i]+1]] \
+                     for i in range(len(combo)) ]
     start_index_list = [subset_indices[index] for index in combo]
     end_index_list = [subset_indices[index+1] for index in combo]
 
-    distance_list = create_distance_matrix(dataset_list, distance_fct, start_index_list, end_index_list)
-    matrix.append(empirical_cumulative_distribution_vector(distance_list, bins))
+    distance_list = create_distance_matrix(
+      dataset_list, distance_fct, start_index_list, end_index_list )
+    matrix.append(empirical_cumulative_distribution_vector( distance_list, bins ))
     dataset_list = []
 
   return np.transpose(matrix)
-    
-
 
 
 ## \brief   Same as empirical_cumulative_distribution_vector_list, but for bootstrapping.
@@ -123,16 +120,12 @@ def empirical_cumulative_distribution_vector_list(
 #  \retval  ecdf_list      ecdf vector enlisting values for subset combinations.
 def empirical_cumulative_distribution_vector_list_bootstrap(
   dataset, bins, distance_fct, n_elements_a, n_elements_b, n_samples ):
-  
-
   n_params = len(signature(distance_fct).parameters)
   dataset_list = []
 
   if n_params == 2:
     dataset_list.append(dataset[0:n_elements_a])
     dataset_list.append(dataset[n_elements_a:n_elements_a+n_elements_b])
-
-
     distance_matrix = np.array( create_distance_matrix(dataset_list, distance_fct) )
 
     matrix = []
@@ -141,8 +134,7 @@ def empirical_cumulative_distribution_vector_list_bootstrap(
       indices  = [ i for i in range(len(distance_matrix)) if i not in select_a ]
       select_b = [ indices[x] for x in np.random.randint(len(indices), size=n_elements_b) ]
 
-
-      distance_list = [distance_matrix[i] for sublist in [select_a, select_b] for i in sublist]
+      distance_list = [ distance_matrix[i] for sublist in [select_a, select_b] for i in sublist ]
       matrix.append( empirical_cumulative_distribution_vector(distance_list, bins) )
       
   return np.transpose(matrix)
@@ -154,6 +146,7 @@ def empirical_cumulative_distribution_vector_list_bootstrap(
 #  \retval  ecdf_means     Element-wise mean values of the ecdf vectors.
 def mean_of_ecdf_vectors( ecdf_vector_list ):
   return [ np.mean(vector) for vector in ecdf_vector_list ]
+
 
 ## \brief  Covariance matrix of ecdf vectors.
 #
@@ -173,6 +166,7 @@ def covariance_of_ecdf_vectors( ecdf_vector_list ):
 def evaluate( estimator, dataset ):
   return estimator.evaluate( dataset )
 
+
 ## \brief  Evaluate target/objective/cost function associated to estimator type from ecdf vector.
 #
 #  Evaluate the negative log-likelihood in the way that is characterized by the estimator.
@@ -181,9 +175,7 @@ def evaluate( estimator, dataset ):
 #  \param   ecdf_vector    The vector of ecdf, which is the argument for the target function.
 #  \retval  target_val     The value of the target function.
 def evaluate_from_empirical_cumulative_distribution_functions( estimator, vector ):
-
   mean_deviation = np.subtract( estimator.mean_vector , vector )
-  
   if not estimator.error_printed:
     try:
       x = np.linalg.solve(estimator.covar_matrix, mean_deviation)

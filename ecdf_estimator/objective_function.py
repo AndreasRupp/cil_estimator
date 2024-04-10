@@ -36,7 +36,7 @@ class standard:
     self.error_printed  = False
 
   ## \private
-  def evaluate_ecdf(self, dataset): 
+  def evaluate_ecdf(self, dataset):
     if len(dataset) not in self.subset_sizes:
       print("WARNING: Dataset size is different!")
     
@@ -60,8 +60,8 @@ class standard:
     start_index_list = [0] + [ self.subset_indices[index] for index in comparison_ind ]
     end_index_list = [len(dataset)] + [ self.subset_indices[index+1] for index in comparison_ind ]
 
-    distance_list = ecdf_aux.create_distance_matrix(dataset_list, self.distance_fct, \
-      start_index_list, end_index_list)
+    distance_list = ecdf_aux.create_distance_matrix(
+      dataset_list, self.distance_fct, start_index_list, end_index_list )
 
     while isinstance(distance_list[0], list):
       distance_list = [item for sublist in distance_list for item in sublist]
@@ -70,9 +70,8 @@ class standard:
 
   ## \private
   def evaluate( self, dataset ):
-
-    return ecdf_aux.evaluate_from_empirical_cumulative_distribution_functions( self,
-      self.evaluate_ecdf(dataset) )
+    return ecdf_aux.evaluate_from_empirical_cumulative_distribution_functions(
+      self, self.evaluate_ecdf(dataset) )
 
 # --------------------------------------------------------------------------------------------------
 # Objective function for bootstrapping:
