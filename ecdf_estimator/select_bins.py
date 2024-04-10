@@ -1,28 +1,25 @@
 import numpy as np
 from inspect import signature
 import ecdf_estimator.utils as ecdf_aux
+import itertools as it
 
 
 ## \brief  Heuristically determine region in which useful bin/radii values are located.
 #
-#  \param   dataset_a        Subset of the overall dataset.
-#  \param   dataset_b        Different subset of the poverall dataset.
+#  \param   data             The whole training data from which some subsets are selected.
+#  \param   subset_size      The size of one subset.
 #  \param   distance_fct     Functions that evaluates (generalized) distance between subset members.
 #  \param   rel_offset       Relative offset to determin interval of reasonable bin values.
 #  \param   rel_cutoff       Relative cutoff of the interval of reasonable bin values.            
 #  \retval  target_val       The value of the target function.
-def estimate_radii_values( dataset_a, dataset_b, distance_fct, rel_offset=0.05, rel_cutoff=0.05 ):
+def estimate_radii_values( data, subset_size, distance_fct, rel_offset=0.05, rel_cutoff=0.05 ):
+  
   n_params = len(signature(distance_fct).parameters)
-  if n_params < 1 or n_params > 2:
-    raise Exception("Distance function must accept one or two arguments.")
+  datasets = []
+  for i in range(n_params):
+    datasets.append(data[i*subset_size:i*subset_size + subset_size])
 
-  if n_params == 1:
-    distance_data = [ distance_fct(data_a) for data_a in dataset_a ]
-  else:
-    distance_data = [ distance_fct(data_a, data_b) for data_b in dataset_b for data_a in dataset_a ]
-
-  while isinstance(distance_data[0], list):
-    distance_data = [item for sublist in distance_data for item in sublist]
+  distance_data = [ distance_fct(*item) for item in it.product(*datasets) ]
   distance_data = np.sort(distance_data)
 
   data_offset = round(len(distance_data) * rel_offset)
