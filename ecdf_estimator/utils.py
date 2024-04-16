@@ -51,7 +51,13 @@ def create_distance_matrix(dataset_list, distance_fct, start_index_list=None, en
   if n_params == 1:
     return [distance_fct(dataset_list[0][i]) for i in range(start_index_list[0], end_index_list[0])]
 
-  return [ distance_fct(*item) for item in it.product(*dataset_list)]
+  if (len(dataset_list[0]) == len(dataset_list[1])):
+    return [distance_fct(*item) for item in it.product(*dataset_list)]
+
+  sets = [dataset_list[i][start_index_list[i]:end_index_list[i]] for i in range(len(dataset_list))]
+
+  return [distance_fct(*item) for item in it.product(*sets)]
+
 
 
 ## \brief   Assemble ecdf vector, whose elements are list of values for all subset combinations.

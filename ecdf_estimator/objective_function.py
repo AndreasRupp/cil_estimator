@@ -49,7 +49,6 @@ class standard:
           helper = np.random.randint( len(self.subset_sizes) )
         comparison_ind.append(helper)
     else:
-      set_ind = [ i for i in range(len(self.subset_sizes)) if self.subset_sizes[i] == len(dataset) ]
       for _ in range(n_params-1):
         helper = helper_ind[np.random.randint(len(helper_ind))]
         while helper in comparison_ind:
@@ -57,6 +56,8 @@ class standard:
         comparison_ind.append(helper)
 
     dataset_list = [dataset] + [self.dataset] * (n_params-1)
+
+
     start_index_list = [0] + [ self.subset_indices[index] for index in comparison_ind ]
     end_index_list = [len(dataset)] + [ self.subset_indices[index+1] for index in comparison_ind ]
 
