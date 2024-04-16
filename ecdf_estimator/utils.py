@@ -81,7 +81,6 @@ def empirical_cumulative_distribution_vector_list(
   n_params = len(signature(distance_fct).parameters)
   matrix = []
 
-
   if not all(subset_indices[i] <= subset_indices[i+1] for i in range(len(subset_indices)-1)):
     raise Exception("Subset indices are out of order.")
   if subset_indices[0] != 0 or subset_indices[-1] != len(dataset):
