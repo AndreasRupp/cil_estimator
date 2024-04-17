@@ -1,23 +1,25 @@
 [build-system]
 requires = [
   "setuptools == 68.2.2",
-  "numpy>=1.19.5",
-  "matplotlib>=3.6"
+  "numpy>=1.25.0",
+  "scipy>=1.10.1",
+  "matplotlib>=3.7.1"
 ]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "ecdf_estimator"
-version = "0.1.6"
+version = "0.1.7"
 authors = [
   { name="Andreas Rupp", email="info@rupp.ink" },
 ]
 description = "Python package for parameter estimation of random data"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.11.6"
 dependencies = [
-  "numpy>=1.19.5",
-  "matplotlib>=3.6"
+  "numpy>=1.25.0",
+  "scipy>=1.10.1",
+  "matplotlib>=3.7.1"
 ]
 classifiers = [
   "Programming Language :: Python :: 3",
