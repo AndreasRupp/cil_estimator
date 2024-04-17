@@ -1,4 +1,8 @@
 import setuptools
+import sys
+
+if sys.version_info < (3,11):
+    sys.exit('Sorry, Python < 3.11 is not supported')
 
 with open("README.md", "r", encoding="utf-8") as fh:
   long_description = fh.read()
@@ -19,7 +23,8 @@ setuptools.setup(
   packages=['ecdf_estimator'],
   install_requires=[
     'requests',
-    'numpy>=1.19.5',
-    'matplotlib>=3.6'
+    'numpy>=1.25.0',
+    'scipy>=1.10.1',
+    'matplotlib>=3.7.1'
   ],
 )
