@@ -25,7 +25,7 @@ def empirical_cumulative_distribution_vector( distance_list, bins ):
 #  in the distance function. The distances of all value combinations of these subsets are computed. 
 #
 #  \param   dataset_list       The list of datasets which are compared to each other.
-#  \param   distance_fct       Generalized distance function  among several datasets.
+#  \param   distance_fct       Generalized distance function among several datasets.
 #  \param   start_index_list   Starting indices of the datasets. Defaults to None.
 #  \param   end_index_list     Ending indices of the datasets. Defaults to None.
 #  \retval  distance_mat       Matrix of generalized distances.
@@ -70,7 +70,7 @@ def create_distance_matrix(dataset_list, distance_fct, start_index_list=None, en
 #  The first dimension of the result refers to the index of the bin / ecdf vector. The second index
 #  of the result refers to the subset combination.
 #
-#  \param   dataset        First dataset, whose subset are compared to one another.
+#  \param   dataset        Whole dataset, whose subset are compared to one another.
 #  \param   bins           List of bins.
 #  \param   distance_fct   Function generating a generalized distance between members of dataset.
 #  \param   subset_indices List of starting (and ending) indices of disjointly subdivided dataset.
@@ -80,7 +80,6 @@ def empirical_cumulative_distribution_vector_list(
   dataset, bins, distance_fct, subset_indices, compare_all=True ):
   n_params = len(signature(distance_fct).parameters)
   matrix = []
-
 
   if not all(subset_indices[i] <= subset_indices[i+1] for i in range(len(subset_indices)-1)):
     raise Exception("Subset indices are out of order.")
@@ -101,12 +100,13 @@ def empirical_cumulative_distribution_vector_list(
 
   combinations = it.combinations(list(range(0,len(subset_indices)-1)), n_params)
   dataset_list = []
+
   for combo in combinations:
     dataset_list = [ dataset[subset_indices[combo[i]]:subset_indices[combo[i]+1]] \
                      for i in range(len(combo)) ]
     start_index_list = [subset_indices[index] for index in combo]
     end_index_list = [subset_indices[index+1] for index in combo]
-
+    
     distance_list = create_distance_matrix(
       dataset_list, distance_fct, start_index_list, end_index_list )
     matrix.append(empirical_cumulative_distribution_vector( distance_list, bins ))

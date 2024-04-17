@@ -56,8 +56,6 @@ class standard:
         comparison_ind.append(helper)
 
     dataset_list = [dataset] + [self.dataset] * (n_params-1)
-
-
     start_index_list = [0] + [ self.subset_indices[index] for index in comparison_ind ]
     end_index_list = [len(dataset)] + [ self.subset_indices[index+1] for index in comparison_ind ]
 
