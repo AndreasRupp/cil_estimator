@@ -39,10 +39,10 @@ def plot_mean_vector( estimator, plotter=plt, plot_options="g." ):
 #  \param   plotter        Python object to which the plot should be added. Defaults to plt.
 #  \param   plot_options   String describing the options for plotting.
 #  \retval  plotter        Python object to whhich the plot has been added.
-def plot_chi2_test( estimator, plotter=plt, plot_options="r-" ):
+def plot_chi2_test( estimator, plotter=plt, plot_options="r-", n_bins=10 ):
   n_logl = [ ecdf_aux.evaluate_from_empirical_cumulative_distribution_functions(estimator, vector) \
              for vector in np.transpose(estimator.ecdf_list) ]
-  khi, bins = np.histogram( n_logl )
+  khi, bins = np.histogram( n_logl, bins=n_bins )
   khi_n = [ x / sum(khi) / (bins[1] - bins[0]) for x in khi ]
   plotter.hist(bins[:-1], bins, weights=khi_n)
   df = len( estimator.ecdf_list )
